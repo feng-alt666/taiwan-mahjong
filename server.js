@@ -827,7 +827,6 @@ wss.on('connection', (ws) => {
       case 'passAction': {
         if (!clientRoom) return;
         delete clientRoom.pendingActions[clientSeat];
-        // If no more pending actions, move to next player
         if (Object.keys(clientRoom.pendingActions).length === 0) {
           const nextIdx = (clientRoom.lastDiscardBy + 1) % 4;
           clientRoom.currentTurn = nextIdx;
@@ -835,6 +834,14 @@ wss.on('connection', (ws) => {
           clientRoom.broadcastState();
           setTimeout(() => clientRoom.startTurn(), 300);
         }
+        break;
+      }
+      case 'hurry': {
+        if (!clientRoom) return;
+        const fromPlayer = clientRoom.players[clientSeat];
+        const targetPlayer = clientRoom.players[msg.targetSeat];
+        if (!fromPlayer || !targetPlayer) return;
+        clientRoom.broadcastAll({ type: 'hurry', fromName: fromPlayer.name, targetName: targetPlayer.name });
         break;
       }
     }

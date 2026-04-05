@@ -8,7 +8,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Fredoka+One&display=swap');
 :root{
   --green:#1a6b3a;--gl:#2d8a4e;--gd:#0f4424;
-  --gold:#f0c040;--gol:#ffd060;--god:#c8960c;
+  --gold:#f0c040;--god:#c8960c;
   --red:#e03030;--tile:#fdf6e3;--tb:#c8a060;--ts:#8b5e1a;
   --dk:#1a1a1a;--lt:#f5f0e8;
 }
@@ -17,32 +17,25 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
 .screen{display:none;min-height:100vh;flex-direction:column;align-items:center;}
 .screen.active{display:flex;}
 
-/* ── CONNECT SCREEN ── */
 #s-connect{background:radial-gradient(ellipse at 50% 30%,#2d8a4e,#0f4424 60%,#08291a);justify-content:center;padding:30px 20px;}
 .logo{text-align:center;margin-bottom:28px;}
 .logo h1{font-family:'Fredoka One',cursive;font-size:clamp(36px,8vw,64px);color:var(--gold);text-shadow:4px 4px 0 #8b5e00,0 0 40px rgba(240,192,64,.4);line-height:1;}
 .logo p{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px;letter-spacing:4px;text-transform:uppercase;}
 .card{background:rgba(255,255,255,.06);border:1px solid rgba(240,192,64,.25);border-radius:20px;padding:28px;width:100%;max-width:520px;backdrop-filter:blur(10px);}
 .card h2{font-size:15px;color:var(--gold);margin-bottom:14px;}
-
-/* inputs */
 .inp{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:10px;padding:11px 14px;font-size:15px;color:#fff;font-family:'Noto Sans TC',sans-serif;outline:none;width:100%;}
 .inp:focus{border-color:var(--gold);}
 .inp::placeholder{color:rgba(255,255,255,.3);}
 .inp.code-inp{letter-spacing:6px;text-transform:uppercase;text-align:center;font-size:22px;font-family:monospace;}
 .num-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
 .num-row label{font-size:13px;color:rgba(255,255,255,.55);min-width:72px;}
-
-/* buttons */
-.btn-p{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),var(--god));border:none;border-radius:12px;font-size:16px;font-weight:700;color:#1a1a00;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .2s;letter-spacing:1px;}
+.btn-p{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),var(--god));border:none;border-radius:12px;font-size:16px;font-weight:700;color:#1a1a00;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .2s;}
 .btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(240,192,64,.4);}
 .btn-p:disabled{opacity:.4;cursor:not-allowed;transform:none;}
 .btn-s{padding:11px 18px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);border-radius:10px;color:#fff;font-size:13px;font-family:'Noto Sans TC',sans-serif;cursor:pointer;transition:all .2s;}
 .btn-s:hover{border-color:var(--gold);color:var(--gold);}
 .divider{display:flex;align-items:center;gap:12px;margin:16px 0;font-size:12px;color:rgba(255,255,255,.3);}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1);}
-
-/* char grid */
 .char-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
 .cc{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 6px;cursor:pointer;text-align:center;transition:all .2s;}
 .cc:hover,.cc.sel{border-color:var(--gold);transform:translateY(-2px);}
@@ -51,7 +44,6 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
 .cc .cn{font-size:11px;font-weight:500;}
 .cc .ct{font-size:9px;color:rgba(255,255,255,.35);margin-top:1px;}
 
-/* ── LOBBY SCREEN ── */
 #s-lobby{background:radial-gradient(ellipse at 50% 20%,#1a3060,#0a1428 60%,#050c18);justify-content:center;padding:30px 20px;}
 .lobby-box{max-width:520px;width:100%;}
 .lobby-box h2{font-family:'Fredoka One',cursive;font-size:28px;color:var(--gold);text-align:center;margin-bottom:4px;}
@@ -69,25 +61,29 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
 .config-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px;margin-bottom:16px;}
 .config-box h3{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:12px;}
 
-/* ── DICE SCREEN ── */
 #s-dice{background:radial-gradient(ellipse at 50% 50%,#2a2060,#0e0a28);justify-content:center;align-items:center;padding:40px 20px;text-align:center;}
 .dice-box{max-width:460px;width:100%;}
 .dice-box h2{font-family:'Fredoka One',cursive;font-size:30px;color:var(--gold);margin-bottom:6px;}
 .dice-row{display:flex;justify-content:center;gap:18px;margin:24px 0;}
 .die{width:68px;height:68px;background:rgba(255,255,255,.95);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:38px;color:#111;box-shadow:0 4px 16px rgba(0,0,0,.5);}
 .die.roll{animation:spin .5s ease-out;}
-@keyframes spin{0%{transform:rotateY(0);} 50%{transform:rotateY(180deg) scale(1.15);} 100%{transform:rotateY(360deg);}}
+@keyframes spin{0%{transform:rotateY(0);}50%{transform:rotateY(180deg) scale(1.15);}100%{transform:rotateY(360deg);}}
 .dice-result{background:rgba(255,255,255,.06);border:1px solid rgba(240,192,64,.25);border-radius:14px;padding:18px;font-size:14px;line-height:2.2;color:rgba(255,255,255,.8);}
 .dice-result strong{color:var(--gold);}
 
-/* ── GAME SCREEN ── */
 #s-game{background:radial-gradient(ellipse at 50% 50%,#2a7a44,#1a5530 50%,#0f3820);padding:0;justify-content:flex-start;}
 .game-layout{display:grid;grid-template-rows:auto auto 1fr auto auto;width:100%;max-width:960px;margin:0 auto;min-height:100vh;padding:8px;gap:6px;}
 .topbar{display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.45);border-radius:10px;padding:7px 14px;font-size:12px;flex-wrap:wrap;gap:6px;}
 .round-info{font-weight:700;color:var(--gold);}
-.top-stats{display:flex;gap:12px;font-size:12px;flex-wrap:wrap;}
+.top-stats{display:flex;gap:10px;font-size:12px;flex-wrap:wrap;align-items:center;}
 .top-stats span{color:rgba(255,255,255,.55);}
 .top-stats strong{color:var(--gold);}
+
+/* 催促按鈕 */
+.btn-hurry{padding:5px 12px;background:rgba(224,48,48,.18);border:1.5px solid var(--red);border-radius:8px;color:var(--red);font-size:12px;font-weight:700;font-family:'Noto Sans TC',sans-serif;cursor:pointer;transition:all .2s;animation:hurry-pulse 1.5s infinite;}
+.btn-hurry:hover{background:rgba(224,48,48,.35);transform:scale(1.05);}
+.btn-hurry:disabled{opacity:.4;cursor:not-allowed;animation:none;}
+@keyframes hurry-pulse{0%,100%{box-shadow:0 0 0 0 rgba(224,48,48,.45);}50%{box-shadow:0 0 0 7px rgba(224,48,48,0);}}
 
 .opp-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
 .pp{background:rgba(0,0,0,.35);border:1.5px solid rgba(255,255,255,.1);border-radius:12px;padding:8px 10px;position:relative;transition:border-color .3s,box-shadow .3s;}
@@ -99,39 +95,72 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
 .pch{font-size:10px;color:var(--gold);}
 .wb{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:rgba(240,192,64,.12);border:1px solid rgba(240,192,64,.3);border-radius:4px;font-size:10px;font-weight:700;color:var(--gold);margin-left:auto;}
 .back-row{display:flex;gap:2px;flex-wrap:wrap;}
-.tb{width:14px;height:20px;background:linear-gradient(135deg,#3a6a8a,#2a4a6a);border-radius:2px;border:1px solid rgba(255,255,255,.15);}
+.tb-back{width:14px;height:20px;background:linear-gradient(135deg,#3a6a8a,#2a4a6a);border-radius:2px;border:1px solid rgba(255,255,255,.15);}
 .opp-meld{display:flex;gap:2px;flex-wrap:wrap;margin-top:4px;}
 .flower-str{font-size:10px;color:#c080e8;margin-top:3px;}
 
-.table-c{background:rgba(0,0,0,.2);border-radius:14px;border:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;min-height:90px;}
-.dpile{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;max-width:600px;}
-.dlbl{font-size:10px;color:rgba(255,255,255,.35);margin-bottom:5px;}
+/* 棄牌區 - 大一點，隨機擺放 */
+.table-c{background:rgba(0,0,0,.2);border-radius:14px;border:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:10px 14px;min-height:130px;overflow:hidden;}
+.dlbl{font-size:10px;color:rgba(255,255,255,.35);margin-bottom:6px;align-self:flex-start;}
+.dpile{position:relative;width:100%;min-height:110px;}
 
-/* tiles */
-.tile{display:inline-flex;align-items:center;justify-content:center;background:var(--tile);border:1.5px solid var(--tb);border-radius:4px;box-shadow:0 2px 0 var(--ts),inset 0 1px 0 rgba(255,255,255,.8);color:var(--dk);cursor:pointer;transition:transform .1s,box-shadow .1s;position:relative;flex-shrink:0;font-family:'Noto Sans TC',sans-serif;}
-.tile.sm{width:18px;height:25px;font-size:10px;}
-.tile.md{width:30px;height:42px;font-size:16px;}
-.tile.lg{width:40px;height:56px;font-size:22px;}
-.tile.sel{transform:translateY(-8px);box-shadow:0 10px 0 var(--ts);border-color:#e03030;}
+/* 牌面 - 清楚的圖案 */
+.tile{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;background:var(--tile);border:1.5px solid var(--tb);border-radius:5px;box-shadow:0 2px 0 var(--ts),inset 0 1px 0 rgba(255,255,255,.8);cursor:pointer;transition:transform .12s,box-shadow .12s;position:relative;flex-shrink:0;overflow:hidden;line-height:1;}
+.tile.sm{width:24px;height:34px;}
+.tile.md{width:36px;height:50px;}
+.tile.lg{width:48px;height:68px;}
+.tile.sel{transform:translateY(-12px)!important;box-shadow:0 14px 0 var(--ts);border-color:#e03030;border-width:2px;}
 .tile.dt{cursor:default;}
-.tile.last-d{border-color:#e03030;box-shadow:0 2px 0 var(--ts),0 0 8px rgba(224,48,48,.5);}
-.tile:hover:not(.dt){transform:translateY(-3px);}
-.tile.sel:hover{transform:translateY(-8px);}
-.tile.rt{color:#cc0000;}.tile.gt{color:#006600;}.tile.ft{color:#a060d0;background:#fef0f8;}
-.tsub{font-size:7px;position:absolute;bottom:1px;right:1px;line-height:1;color:rgba(0,0,0,.4);}
+.tile.last-d{border-color:#e03030;border-width:2px;box-shadow:0 2px 0 var(--ts),0 0 12px rgba(224,48,48,.6);}
+.tile:hover:not(.dt):not(.sel){transform:translateY(-5px);}
 
-/* self panel */
+/* 棄牌區牌絕對定位 */
+.dpile .tile{position:absolute;}
+
+/* 牌面內容 */
+.tn{font-size:inherit;font-weight:900;line-height:1;text-align:center;}
+.ts2{font-size:inherit;line-height:1;opacity:.75;}
+
+/* 萬 */
+.tile.sm .t-wan{font-size:14px;color:#cc1111;}
+.tile.md .t-wan{font-size:20px;color:#cc1111;}
+.tile.lg .t-wan{font-size:26px;color:#cc1111;}
+/* 索 */
+.tile.sm .t-suo{font-size:13px;color:#115511;}
+.tile.md .t-suo{font-size:18px;color:#115511;}
+.tile.lg .t-suo{font-size:24px;color:#115511;}
+/* 餅 */
+.tile.sm .t-bing{font-size:13px;color:#111188;}
+.tile.md .t-bing{font-size:18px;color:#111188;}
+.tile.lg .t-bing{font-size:24px;color:#111188;}
+/* 字牌 */
+.tile.sm .t-honor{font-size:13px;}
+.tile.md .t-honor{font-size:19px;}
+.tile.lg .t-honor{font-size:26px;}
+/* 花牌 */
+.tile.flower-t{background:#fff8ff;}
+.tile.sm .t-flower{font-size:11px;}
+.tile.md .t-flower{font-size:16px;}
+.tile.lg .t-flower{font-size:22px;}
+
+.tile-corner{position:absolute;font-size:8px;font-weight:700;line-height:1;}
+.tile-corner.tl{top:2px;left:3px;}
+.tile-corner.br{bottom:2px;right:2px;transform:rotate(180deg);}
+
 .self-panel{background:rgba(0,0,0,.4);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:10px 14px;}
 .self-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.self-tiles{display:flex;gap:3px;flex-wrap:wrap;align-items:flex-end;min-height:60px;}
+.self-tiles{display:flex;gap:4px;flex-wrap:wrap;align-items:flex-end;min-height:72px;}
 .meld-g{display:flex;gap:2px;}
-.hsep{width:2px;height:44px;background:rgba(255,255,255,.1);border-radius:1px;margin:0 3px;align-self:flex-end;}
-.actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
-.abtn{padding:7px 13px;border-radius:8px;border:2px solid;font-size:12px;font-weight:700;font-family:'Noto Sans TC',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.hsep{width:2px;height:52px;background:rgba(255,255,255,.12);border-radius:1px;margin:0 4px;align-self:flex-end;}
+.sel-hint{font-size:11px;color:rgba(255,255,255,.45);margin-top:5px;min-height:16px;}
+.actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.abtn{padding:8px 14px;border-radius:8px;border:2px solid;font-size:13px;font-weight:700;font-family:'Noto Sans TC',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap;}
 .abtn:hover:not(:disabled){transform:translateY(-2px);}
 .abtn:disabled{opacity:.3;cursor:not-allowed;transform:none!important;}
 .abtn.draw{background:rgba(240,192,64,.12);border-color:var(--gold);color:var(--gold);}
-.abtn.disc{background:rgba(224,48,48,.12);border-color:var(--red);color:var(--red);}
+.abtn.disc{background:rgba(224,48,48,.18);border-color:var(--red);color:var(--red);font-size:14px;}
+.abtn.disc:not(:disabled){animation:disc-ready .9s infinite;}
+@keyframes disc-ready{0%,100%{box-shadow:0 0 0 0 rgba(224,48,48,.5);}50%{box-shadow:0 0 0 8px rgba(224,48,48,0);}}
 .abtn.pong{background:rgba(64,180,240,.12);border-color:#40b4f0;color:#40b4f0;}
 .abtn.chi{background:rgba(64,240,140,.12);border-color:#40f08c;color:#40f08c;}
 .abtn.kong{background:rgba(200,100,240,.12);border-color:#c864f0;color:#c864f0;}
@@ -140,10 +169,6 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
 .abtn.settle{background:rgba(255,100,100,.1);border-color:#ff6464;color:#ff6464;}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(240,192,64,.4);}50%{box-shadow:0 0 0 8px rgba(240,192,64,0);}}
 
-.action-timer{height:3px;background:rgba(240,192,64,.3);border-radius:2px;margin-top:6px;overflow:hidden;}
-.action-timer-bar{height:100%;background:var(--gold);border-radius:2px;transition:width .5s linear;}
-
-/* ── OVERLAYS ── */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;align-items:center;justify-content:center;padding:20px;}
 .overlay.active{display:flex;}
 .win-modal{background:linear-gradient(135deg,#1a3a1a,#0a2810);border:2px solid var(--gold);border-radius:22px;padding:26px;text-align:center;max-width:460px;width:100%;box-shadow:0 0 60px rgba(240,192,64,.3);}
@@ -166,34 +191,25 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
 .settle-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border-radius:12px;padding:11px 14px;margin-bottom:6px;}
 .sc{font-size:26px;}.si{flex:1;text-align:left;}.sn{font-size:13px;font-weight:700;}.ss{font-size:11px;color:rgba(255,255,255,.4);}
 .sd{font-size:15px;font-weight:700;}
-
-/* chi picker */
 .chi-modal{background:#1a3a1a;border:2px solid var(--gold);border-radius:18px;padding:22px;max-width:360px;width:100%;text-align:center;}
 .chi-modal h3{color:var(--gold);margin-bottom:12px;font-size:15px;}
 .chi-opts{display:flex;flex-direction:column;gap:8px;}
 .chi-opt{background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);border-radius:10px;padding:10px;cursor:pointer;transition:all .2s;display:flex;justify-content:center;gap:4px;}
 .chi-opt:hover{border-color:var(--gold);}
-
-/* conn badge */
 .conn-badge{position:fixed;top:8px;right:8px;font-size:11px;padding:4px 10px;border-radius:20px;background:rgba(0,0,0,.6);border:1px solid;z-index:200;}
 .conn-badge.ok{border-color:#40f08c;color:#40f08c;}
 .conn-badge.err{border-color:#f06060;color:#f06060;}
 .conn-badge.wait{border-color:var(--gold);color:var(--gold);}
-
-/* toast */
 .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:rgba(10,40,20,.95);border:1.5px solid var(--gold);border-radius:10px;padding:9px 20px;font-size:13px;font-weight:700;color:var(--gold);z-index:300;transition:transform .3s ease;white-space:nowrap;}
 .toast.show{transform:translateX(-50%) translateY(0);}
-
 .error-msg{background:rgba(224,48,48,.12);border:1px solid rgba(224,48,48,.3);border-radius:10px;padding:10px 14px;font-size:13px;color:#f08080;margin-top:10px;display:none;}
 .error-msg.active{display:block;}
 </style>
 </head>
 <body>
-
-<!-- CONNECTION BADGE -->
 <div class="conn-badge wait" id="conn-badge">⚡ 連接中</div>
 
-<!-- SCREEN: CONNECT / CREATE / JOIN -->
+<!-- CONNECT -->
 <div id="s-connect" class="screen active">
   <div class="logo"><h1>🀄 台灣麻將</h1><p>多人連線版</p></div>
   <div class="card">
@@ -201,10 +217,8 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
     <input class="inp" id="inp-name" placeholder="輸入名字" maxlength="8" style="margin-bottom:12px">
     <h2>🎭 選擇角色</h2>
     <div class="char-grid" id="char-grid"></div>
-
     <div class="error-msg" id="err-msg"></div>
-
-    <button class="btn-p" id="btn-create" onclick="createRoom()" style="margin-bottom:10px">✨ 建立新房間（房主）</button>
+    <button class="btn-p" onclick="createRoom()" style="margin-bottom:10px">✨ 建立新房間（房主）</button>
     <div class="divider">或加入現有房間</div>
     <div style="display:flex;gap:8px;margin-bottom:10px">
       <input class="inp code-inp" id="inp-code" placeholder="XXXX" maxlength="4">
@@ -213,7 +227,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
   </div>
 </div>
 
-<!-- SCREEN: LOBBY (waiting room) -->
+<!-- LOBBY -->
 <div id="s-lobby" class="screen">
   <div class="lobby-box">
     <h2>🎮 等待室</h2>
@@ -221,39 +235,31 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
       <div class="code" id="lobby-code"></div>
       <div class="share-url" id="share-url"></div>
     </div>
-
-    <!-- Config (host only) -->
     <div class="config-box" id="config-box">
       <h3>💰 底數 / 台數設定 <span style="color:var(--gold);font-size:11px">(房主)</span></h3>
       <div class="num-row"><label>底數 (元)</label><input class="inp" id="cfg-base" type="number" value="100" min="1" oninput="sendConfig()"></div>
       <div class="num-row"><label>台數 (元/台)</label><input class="inp" id="cfg-tai" type="number" value="40" min="1" oninput="sendConfig()"></div>
     </div>
-    <div id="config-readonly" style="display:none;background:rgba(255,255,255,.04);border-radius:12px;padding:12px;margin-bottom:16px;font-size:13px;color:rgba(255,255,255,.5)">
-      底數/台數由房主設定，等待開局...
-    </div>
-
+    <div id="config-readonly" style="display:none;background:rgba(255,255,255,.04);border-radius:12px;padding:12px;margin-bottom:16px;font-size:13px;color:rgba(255,255,255,.5)">底數/台數由房主設定，等待開局...</div>
     <div class="player-slots" id="player-slots"></div>
-
     <button class="btn-p" id="btn-start" onclick="sendStart()" disabled>🀄 開始遊戲！</button>
     <div style="text-align:center;font-size:12px;color:rgba(255,255,255,.35);margin-top:8px" id="wait-hint">等待更多玩家加入...</div>
   </div>
 </div>
 
-<!-- SCREEN: DICE -->
+<!-- DICE -->
 <div id="s-dice" class="screen">
   <div class="dice-box">
     <h2>🎲 骰骰子決定莊家</h2>
     <p style="color:rgba(255,255,255,.4);font-size:13px;margin-bottom:4px">伺服器自動擲骰</p>
     <div class="dice-row">
-      <div class="die" id="d1">⚄</div>
-      <div class="die" id="d2">⚂</div>
-      <div class="die" id="d3">⚁</div>
+      <div class="die" id="d1">⚄</div><div class="die" id="d2">⚂</div><div class="die" id="d3">⚁</div>
     </div>
     <div class="dice-result" id="dice-result" style="display:none"></div>
   </div>
 </div>
 
-<!-- SCREEN: GAME -->
+<!-- GAME -->
 <div id="s-game" class="screen">
   <div class="game-layout">
     <div class="topbar">
@@ -263,20 +269,18 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
         <span>底: <strong id="show-base">100</strong></span>
         <span>台: <strong id="show-tai">40</strong></span>
         <span id="status-txt" style="color:#40f08c;font-weight:700;font-size:12px"></span>
+        <button class="btn-hurry" id="btn-hurry" onclick="sendHurry()" style="display:none">⚡ 催！</button>
       </div>
     </div>
-
     <div class="opp-row">
       <div class="pp" id="pp2"><div class="ph"><div class="pav" id="av2"></div><div><div class="pnm" id="nm2"></div><div class="pch" id="ch2"></div></div><div class="wb" id="wb2"></div></div><div class="back-row" id="bt2"></div><div class="opp-meld" id="om2"></div><div class="flower-str" id="fl2"></div></div>
       <div class="pp" id="pp3"><div class="ph"><div class="pav" id="av3"></div><div><div class="pnm" id="nm3"></div><div class="pch" id="ch3"></div></div><div class="wb" id="wb3"></div></div><div class="back-row" id="bt3"></div><div class="opp-meld" id="om3"></div><div class="flower-str" id="fl3"></div></div>
       <div class="pp" id="pp4"><div class="ph"><div class="pav" id="av4"></div><div><div class="pnm" id="nm4"></div><div class="pch" id="ch4"></div></div><div class="wb" id="wb4"></div></div><div class="back-row" id="bt4"></div><div class="opp-meld" id="om4"></div><div class="flower-str" id="fl4"></div></div>
     </div>
-
     <div class="table-c">
       <div class="dlbl" id="dlbl">棄牌區</div>
       <div class="dpile" id="dpile"></div>
     </div>
-
     <div class="self-panel">
       <div class="self-hd">
         <div style="font-size:28px" id="av1"></div>
@@ -285,10 +289,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
         <div style="font-size:11px;color:#c080e8;margin-left:8px" id="fl1"></div>
       </div>
       <div class="self-tiles" id="self-tiles"></div>
-      <div class="action-timer"><div class="action-timer-bar" id="timer-bar" style="width:100%"></div></div>
+      <div class="sel-hint" id="sel-hint"></div>
       <div class="actions">
         <button class="abtn draw" id="btn-draw" onclick="sendDraw()" disabled>摸牌</button>
-        <button class="abtn disc" id="btn-disc" onclick="sendDiscard()" disabled>打牌</button>
+        <button class="abtn disc" id="btn-disc" onclick="sendDiscard()" disabled>出牌</button>
         <button class="abtn pong" id="btn-pong" onclick="sendPong()" disabled>碰</button>
         <button class="abtn chi" id="btn-chi" onclick="openChiPicker()" disabled>吃</button>
         <button class="abtn kong" id="btn-kong" onclick="sendKong()" disabled>槓</button>
@@ -300,7 +304,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
   </div>
 </div>
 
-<!-- WIN OVERLAY -->
+<!-- WIN -->
 <div class="overlay" id="ov-win">
   <div class="win-modal">
     <div class="wc" id="wm-char"></div>
@@ -313,7 +317,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
   </div>
 </div>
 
-<!-- CHI PICKER -->
+<!-- CHI -->
 <div class="overlay" id="ov-chi">
   <div class="chi-modal">
     <h3>選擇要吃的組合</h3>
@@ -322,7 +326,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
   </div>
 </div>
 
-<!-- SETTLE OVERLAY -->
+<!-- SETTLE -->
 <div class="overlay" id="ov-settle">
   <div class="settle-modal">
     <h2>📊 目前結算</h2>
@@ -335,272 +339,199 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
 <div class="toast" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════
-// CONFIG — auto-detects environment
-// ══════════════════════════════════════
-// On Railway/cloud: same host, same port (no explicit port needed)
-// Locally: ws://localhost:3001
-const WS_URL = (() => {
-  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const host = location.hostname || 'localhost';
-  const isLocal = host === 'localhost' || host === '127.0.0.1';
-  const port = isLocal ? ':3001' : '';
-  return `${proto}//${host}${port}`;
-})();
-
-// ══════════════════════════════════════
-// CHARACTERS
-// ══════════════════════════════════════
-const CHARS=[
-  {id:'mario',e:'🧢',n:'瑪利歐',t:'穩健型'},
-  {id:'luigi',e:'💚',n:'路易吉',t:'謹慎型'},
-  {id:'peach',e:'👸',n:'碧琪公主',t:'優雅型'},
-  {id:'toad',e:'🍄',n:'奇諾比奧',t:'活潑型'},
-  {id:'yoshi',e:'🦕',n:'耀西',t:'樂觀型'},
-  {id:'bowser',e:'🐢',n:'庫巴',t:'積極型'},
-  {id:'donkey',e:'🦍',n:'大金剛',t:'豪爽型'},
-  {id:'rosalina',e:'⭐',n:'羅賽塔',t:'神秘型'},
-  {id:'waluigi',e:'🎭',n:'壞路易吉',t:'狡猾型'},
-  {id:'wario',e:'💛',n:'壞瑪利歐',t:'大膽型'},
-  {id:'daisy',e:'🌼',n:'黛西公主',t:'爽朗型'},
-  {id:'koopa',e:'🐚',n:'庫巴小兵',t:'隨和型'},
-];
-
+const WS_URL=(()=>{const p=location.protocol==='https:'?'wss:':'ws:';const h=location.hostname||'localhost';const l=h==='localhost'||h==='127.0.0.1';return`${p}//${h}${l?':3001':''}`;})();
+const CHARS=[{id:'mario',e:'🧢',n:'瑪利歐',t:'穩健型'},{id:'luigi',e:'💚',n:'路易吉',t:'謹慎型'},{id:'peach',e:'👸',n:'碧琪公主',t:'優雅型'},{id:'toad',e:'🍄',n:'奇諾比奧',t:'活潑型'},{id:'yoshi',e:'🦕',n:'耀西',t:'樂觀型'},{id:'bowser',e:'🐢',n:'庫巴',t:'積極型'},{id:'donkey',e:'🦍',n:'大金剛',t:'豪爽型'},{id:'rosalina',e:'⭐',n:'羅賽塔',t:'神秘型'},{id:'waluigi',e:'🎭',n:'壞路易吉',t:'狡猾型'},{id:'wario',e:'💛',n:'壞瑪利歐',t:'大膽型'},{id:'daisy',e:'🌼',n:'黛西公主',t:'爽朗型'},{id:'koopa',e:'🐚',n:'庫巴小兵',t:'隨和型'}];
 const SUIT_N=['萬','索','餅'];
 const HONORS=['東','南','西','北','中','發','白'];
 const WINDS=['東','南','西','北'];
 const FLOWER_LABELS=['梅','蘭','菊','竹','春','夏','秋','冬'];
+const FLOWER_EMOJI=['🌸','🌿','🌼','🎋','🌞','☀️','🍂','❄️'];
 const DICE_FACES=['⚀','⚁','⚂','⚃','⚄','⚅'];
+// 索子符號 (竹節)
+const SUO_SYM=['','🀐','🀑','🀒','🀓','🀔','🀕','🀖','🀗','🀘'];
+// 餅的圓圈
+const BING_SYM=['','①','②','③','④','⑤','⑥','⑦','⑧','⑨'];
+// 萬的漢字
+const WAN_KANJI=['','一','二','三','四','五','六','七','八','九'];
 
-// ══════════════════════════════════════
-// STATE
-// ══════════════════════════════════════
-let ws = null;
-let C = {
-  myChar: CHARS[0],
-  myName: '',
-  mySeat: -1,
-  isHost: false,
-  roomCode: '',
-  gameState: null,
-  selIdx: -1,
-  pendingAction: null,
-  timerInterval: null,
-  chiOpts: [],
-};
+let ws=null;
+let C={myChar:CHARS[0],myName:'',mySeat:-1,isHost:false,roomCode:'',gameState:null,selIdx:-1,pendingAction:null,chiOpts:[],discPos:[]};
 
-// ══════════════════════════════════════
-// INIT
-// ══════════════════════════════════════
-function renderCharGrid() {
-  const g = document.getElementById('char-grid'); g.innerHTML = '';
-  CHARS.forEach((c, i) => {
-    const d = document.createElement('div');
-    d.className = 'cc' + (i===0?' sel':'');
-    d.innerHTML = `<div class="ce">${c.e}</div><div class="cn">${c.n}</div><div class="ct">${c.t}</div>`;
-    d.onclick = () => {
-      document.querySelectorAll('.cc').forEach(x=>x.classList.remove('sel'));
-      d.classList.add('sel'); C.myChar = c;
-    };
+// ── 建立牌元素 ──
+function makeTile(t,size,extra,onclick){
+  const d=document.createElement('div');
+  let cls=`tile ${size} ${extra||''}`;
+  let inner='';
+
+  if(t.flower!=null){
+    cls+=' flower-t';
+    const fe=FLOWER_EMOJI[t.flower]||'🌸';
+    const fn=FLOWER_LABELS[t.flower];
+    const fs=size==='lg'?'20px':size==='md'?'14px':'11px';
+    inner=`<span class="t-flower" style="font-size:${fs}">${fe}</span><span style="font-size:7px;color:#9933aa;margin-top:1px">${fn}</span>`;
+  } else if(t.honor!=null){
+    const name=HONORS[t.honor];
+    const cols={0:'#8b5500',1:'#8b5500',2:'#8b5500',3:'#8b5500',4:'#cc0000',5:'#006600',6:'#666'};
+    const col=cols[t.honor]||'#333';
+    const fs=size==='lg'?'26px':size==='md'?'19px':'13px';
+    inner=`<span class="t-honor" style="font-size:${fs};font-weight:900;color:${col}">${name}</span>`;
+  } else {
+    const n=t.num, s=t.suit;
+    if(s===0){
+      // 萬：漢字 + 萬
+      const col='#cc1111';
+      const fs=size==='lg'?'22px':size==='md'?'16px':'11px';
+      const sfs=size==='lg'?'11px':size==='md'?'8px':'7px';
+      const tfs=size==='lg'?'10px':size==='md'?'8px':'6px';
+      inner=`<span class="tile-corner tl" style="color:${col};font-size:${tfs}">${n}</span><span class="t-wan" style="font-size:${fs}">${WAN_KANJI[n]}</span><span style="font-size:${sfs};color:${col};opacity:.8">萬</span><span class="tile-corner br" style="color:${col};font-size:${tfs}">${n}</span>`;
+    } else if(s===1){
+      // 索：竹節符號
+      const col='#115511';
+      const fs=size==='lg'?'20px':size==='md'?'15px':'10px';
+      const tfs=size==='lg'?'10px':size==='md'?'8px':'6px';
+      inner=`<span class="tile-corner tl" style="color:${col};font-size:${tfs}">${n}</span><span class="t-suo" style="font-size:${fs}">${SUO_SYM[n]||n}</span><span style="font-size:7px;color:${col};opacity:.8">索</span>`;
+    } else {
+      // 餅：圓圈符號
+      const col='#111188';
+      const fs=size==='lg'?'22px':size==='md'?'16px':'11px';
+      const tfs=size==='lg'?'10px':size==='md'?'8px':'6px';
+      inner=`<span class="tile-corner tl" style="color:${col};font-size:${tfs}">${n}</span><span class="t-bing" style="font-size:${fs}">${BING_SYM[n]||n}</span><span style="font-size:7px;color:${col};opacity:.8">餅</span>`;
+    }
+  }
+
+  d.className=cls;
+  d.innerHTML=inner;
+  d.title=tileLabel(t);
+  if(onclick) d.onclick=onclick;
+  return d;
+}
+
+function tileKey(t){if(t.flower!=null)return`F${t.flower}`;if(t.honor!=null)return`H${t.honor}`;return`${t.suit}${t.num}`;}
+function tileLabel(t){if(t.flower!=null)return FLOWER_LABELS[t.flower];if(t.honor!=null)return HONORS[t.honor];return t.num+SUIT_N[t.suit];}
+function sortHand(h){return[...h].sort((a,b)=>{if(a.honor!=null&&b.honor!=null)return a.honor-b.honor;if(a.honor!=null)return 1;if(b.honor!=null)return-1;if(a.suit!==b.suit)return a.suit-b.suit;return a.num-b.num;});}
+
+// ── 棄牌區 - 隨機擺放 ──
+function renderDiscardPile(gs){
+  const pile=document.getElementById('dpile');
+  const discards=gs.discards||[];
+
+  // 每次新局重置
+  if(discards.length===0){C.discPos=[];pile.innerHTML='';pile.style.minHeight='110px';document.getElementById('dlbl').textContent='棄牌區';return;}
+
+  // 為新增的牌生成隨機位置
+  while(C.discPos.length<discards.length){
+    const idx=C.discPos.length;
+    const col=idx%10, row=Math.floor(idx/10);
+    const baseX=col*56+6, baseY=row*40+4;
+    const jx=(Math.random()-.5)*14, jy=(Math.random()-.5)*8;
+    const rot=(Math.random()-.5)*16;
+    C.discPos.push({x:baseX+jx,y:baseY+jy,r:rot});
+  }
+
+  pile.innerHTML='';
+  const rows=Math.ceil(discards.length/10);
+  pile.style.minHeight=Math.max(110,rows*44+12)+'px';
+
+  discards.forEach((d,i)=>{
+    const isLast=i===discards.length-1;
+    const pos=C.discPos[i]||{x:(i%10)*56,y:Math.floor(i/10)*40,r:0};
+    const el=makeTile(d.tile,'md','dt'+(isLast?' last-d':''));
+    el.style.left=pos.x+'px';
+    el.style.top=pos.y+'px';
+    el.style.transform=`rotate(${pos.r}deg)`;
+    el.style.zIndex=i+1;
+    pile.appendChild(el);
+  });
+
+  const lbl=document.getElementById('dlbl');
+  lbl.textContent=gs.lastDiscard?`${gs.players[gs.lastDiscardBy]?.name||''} 打: ${tileLabel(gs.lastDiscard)}`:'棄牌區';
+}
+
+// ── INIT ──
+function renderCharGrid(){
+  const g=document.getElementById('char-grid');g.innerHTML='';
+  CHARS.forEach((c,i)=>{
+    const d=document.createElement('div');
+    d.className='cc'+(i===0?' sel':'');
+    d.innerHTML=`<div class="ce">${c.e}</div><div class="cn">${c.n}</div><div class="ct">${c.t}</div>`;
+    d.onclick=()=>{document.querySelectorAll('.cc').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');C.myChar=c;};
     g.appendChild(d);
   });
-  C.myChar = CHARS[0];
+  C.myChar=CHARS[0];
 }
 
-function connectWS() {
-  setBadge('wait', '⚡ 連接中...');
-  try {
-    ws = new WebSocket(WS_URL);
-  } catch(e) {
-    setBadge('err', '❌ 無法連線');
-    return;
-  }
-  ws.onopen = () => setBadge('ok', '✅ 已連線');
-  ws.onclose = () => { setBadge('err', '❌ 已斷線'); setTimeout(connectWS, 3000); };
-  ws.onerror = () => setBadge('err', '❌ 連線錯誤');
-  ws.onmessage = (ev) => {
-    try { handleMsg(JSON.parse(ev.data)); } catch(e) { console.error(e); }
-  };
+function connectWS(){
+  setBadge('wait','⚡ 連接中...');
+  try{ws=new WebSocket(WS_URL);}catch(e){setBadge('err','❌ 無法連線');return;}
+  ws.onopen=()=>setBadge('ok','✅ 已連線');
+  ws.onclose=()=>{setBadge('err','❌ 已斷線');setTimeout(connectWS,3000);};
+  ws.onerror=()=>setBadge('err','❌ 連線錯誤');
+  ws.onmessage=(ev)=>{try{handleMsg(JSON.parse(ev.data));}catch(e){console.error(e);}};
 }
+function setBadge(t,x){const b=document.getElementById('conn-badge');b.className=`conn-badge ${t}`;b.textContent=x;}
+function showErr(m){const e=document.getElementById('err-msg');e.textContent=m;e.classList.add('active');setTimeout(()=>e.classList.remove('active'),3000);}
+function createRoom(){const n=document.getElementById('inp-name').value.trim();if(!n){showErr('請輸入名字');return;}if(!ws||ws.readyState!==WebSocket.OPEN){showErr('伺服器未連線');return;}C.myName=n;send({type:'createRoom',name:n,char:C.myChar});}
+function joinRoom(){const n=document.getElementById('inp-name').value.trim();const c=document.getElementById('inp-code').value.trim().toUpperCase();if(!n){showErr('請輸入名字');return;}if(c.length!==4){showErr('房間碼需要4碼');return;}if(!ws||ws.readyState!==WebSocket.OPEN){showErr('伺服器未連線');return;}C.myName=n;C.roomCode=c;send({type:'joinRoom',name:n,char:C.myChar,code:c});}
 
-function getBadge(cls, txt) {}
-function setBadge(type, txt) {
-  const b = document.getElementById('conn-badge');
-  b.className = `conn-badge ${type}`;
-  b.textContent = txt;
-}
-
-function createRoom() {
-  const name = document.getElementById('inp-name').value.trim();
-  if (!name) { showErr('請輸入名字'); return; }
-  if (!ws || ws.readyState !== WebSocket.OPEN) { showErr('伺服器未連線，請稍後再試'); return; }
-  C.myName = name;
-  send({ type: 'createRoom', name, char: C.myChar });
-}
-
-function joinRoom() {
-  const name = document.getElementById('inp-name').value.trim();
-  const code = document.getElementById('inp-code').value.trim().toUpperCase();
-  if (!name) { showErr('請輸入名字'); return; }
-  if (code.length !== 4) { showErr('房間碼需要4個字元'); return; }
-  if (!ws || ws.readyState !== WebSocket.OPEN) { showErr('伺服器未連線，請稍後再試'); return; }
-  C.myName = name;
-  C.roomCode = code;
-  send({ type: 'joinRoom', name, char: C.myChar, code });
-}
-
-function showErr(msg) {
-  const e = document.getElementById('err-msg');
-  e.textContent = msg; e.classList.add('active');
-  setTimeout(() => e.classList.remove('active'), 3000);
-}
-
-// ══════════════════════════════════════
-// MESSAGE HANDLER
-// ══════════════════════════════════════
-function handleMsg(msg) {
-  switch(msg.type) {
-    case 'roomCreated':
-      C.mySeat = msg.seatIdx;
-      C.isHost = msg.isHost;
-      C.roomCode = msg.code;
-      showLobby();
-      break;
-    case 'roomJoined':
-      C.mySeat = msg.seatIdx;
-      C.isHost = false;
-      C.roomCode = msg.code;
-      showLobby();
-      break;
-    case 'lobby':
-      updateLobby(msg);
-      break;
-    case 'configUpdated':
-      document.getElementById('cfg-base').value = msg.base;
-      document.getElementById('cfg-tai').value = msg.tai;
-      break;
-    case 'error':
-      showErr(msg.msg);
-      break;
-    case 'gameStart':
-      show('s-dice');
-      toast('遊戲開始！');
-      break;
-    case 'dice':
-      animateDice(msg);
-      break;
-    case 'roundStart':
-      toast(`第 ${msg.round} 局開始！`);
-      break;
-    case 'state':
-      C.gameState = msg;
-      C.pendingAction = msg.pendingAction;
-      renderGame();
-      break;
-    case 'discard':
-      setStatus(`${msg.seat === C.mySeat ? '你' : (C.gameState?.players[msg.seat]?.name||'')} 打出 ${msg.label}`);
-      break;
-    case 'pong':
-      toast(`${C.gameState?.players[msg.seat]?.name||''} 碰！`);
-      break;
-    case 'chi':
-      toast(`吃！`);
-      break;
-    case 'kong':
-      toast(`槓！`);
-      break;
-    case 'flower':
-      if(msg.seat===C.mySeat) toast(`🌸 補花！`);
-      else toast(`${C.gameState?.players[msg.seat]?.name||''} 補花`);
-      break;
-    case 'drew':
-      if(msg.seat===C.mySeat) setStatus('你摸牌了');
-      break;
-    case 'win':
-      closeOverlay('ov-chi');
-      showWinModal(msg);
-      break;
-    case 'exhaust':
-      toast('牌堆耗盡！流局');
-      break;
-    case 'playerLeft':
-      toast(`座位${msg.seat+1}的玩家離線`);
-      break;
+// ── 訊息處理 ──
+function handleMsg(msg){
+  switch(msg.type){
+    case 'roomCreated':C.mySeat=msg.seatIdx;C.isHost=msg.isHost;C.roomCode=msg.code;showLobby();break;
+    case 'roomJoined':C.mySeat=msg.seatIdx;C.isHost=false;C.roomCode=msg.code;showLobby();break;
+    case 'lobby':updateLobby(msg);break;
+    case 'configUpdated':document.getElementById('cfg-base').value=msg.base;document.getElementById('cfg-tai').value=msg.tai;break;
+    case 'error':showErr(msg.msg);break;
+    case 'gameStart':C.discPos=[];show('s-dice');toast('遊戲開始！');break;
+    case 'dice':animateDice(msg);break;
+    case 'roundStart':C.discPos=[];toast(`第 ${msg.round} 局開始！`);break;
+    case 'state':C.gameState=msg;C.pendingAction=msg.pendingAction;renderGame();break;
+    case 'discard':setStatus(`${msg.seat===C.mySeat?'你':(C.gameState?.players[msg.seat]?.name||'')} 打出 ${msg.label}`);break;
+    case 'pong':toast(`${C.gameState?.players[msg.seat]?.name||''} 碰！`);break;
+    case 'chi':toast('吃！');break;
+    case 'kong':toast('槓！');break;
+    case 'flower':toast(msg.seat===C.mySeat?'🌸 補花！':`${C.gameState?.players[msg.seat]?.name||''} 補花`);break;
+    case 'hurry':toast(`⚡ ${msg.fromName} 催促 ${msg.targetName}！`);break;
+    case 'win':closeOverlay('ov-chi');showWinModal(msg);break;
+    case 'exhaust':toast('牌堆耗盡！流局');break;
+    case 'playerLeft':toast(`座位${msg.seat+1}的玩家離線`);break;
   }
 }
 
-// ══════════════════════════════════════
-// LOBBY
-// ══════════════════════════════════════
-function showLobby() {
+// ── Lobby ──
+function showLobby(){
   show('s-lobby');
-  document.getElementById('lobby-code').textContent = C.roomCode;
-  const url = `${location.origin}${location.pathname}?room=${C.roomCode}`;
-  document.getElementById('share-url').textContent = `分享連結: ${url}`;
-  document.getElementById('config-box').style.display = C.isHost ? '' : 'none';
-  document.getElementById('config-readonly').style.display = C.isHost ? 'none' : '';
-  document.getElementById('btn-start').style.display = C.isHost ? '' : 'none';
+  document.getElementById('lobby-code').textContent=C.roomCode;
+  document.getElementById('share-url').textContent=`分享: ${location.origin}?room=${C.roomCode}`;
+  document.getElementById('config-box').style.display=C.isHost?'':'none';
+  document.getElementById('config-readonly').style.display=C.isHost?'none':'';
+  document.getElementById('btn-start').style.display=C.isHost?'':'none';
 }
-
-function updateLobby(msg) {
-  if (!document.getElementById('s-lobby').classList.contains('active')) showLobby();
-  const slots = document.getElementById('player-slots');
-  const players = msg.players || [];
-  slots.innerHTML = '';
-  for(let i=0; i<4; i++) {
-    const p = players[i];
-    const div = document.createElement('div');
-    if(p) {
-      div.className = 'pslot filled';
-      div.innerHTML = `
-        <div class="pem">${p.char?.e||'🎮'}</div>
-        <div>
-          <div class="pnm">${p.name}</div>
-          <div class="pts">${p.char?.n||''} · ${p.char?.t||''}</div>
-        </div>
-        ${i===0?'<div class="pbadge">房主</div>':''}
-        ${i===C.mySeat?'<div class="pbadge" style="background:rgba(64,240,140,.15);border-color:rgba(64,240,140,.3);color:#40f08c">你</div>':''}
-      `;
-    } else {
-      div.className = 'pslot empty';
-      div.innerHTML = `<div class="pem">👤</div><div class="pnm">等待玩家 ${i+1}</div>`;
-    }
+function updateLobby(msg){
+  if(!document.getElementById('s-lobby').classList.contains('active'))showLobby();
+  const slots=document.getElementById('player-slots');
+  const players=msg.players||[];
+  slots.innerHTML='';
+  for(let i=0;i<4;i++){
+    const p=players[i];const div=document.createElement('div');
+    if(p){div.className='pslot filled';div.innerHTML=`<div class="pem">${p.char?.e||'🎮'}</div><div><div class="pnm">${p.name}</div><div class="pts">${p.char?.n||''} · ${p.char?.t||''}</div></div>${i===0?'<div class="pbadge">房主</div>':''}${i===C.mySeat?'<div class="pbadge" style="background:rgba(64,240,140,.15);border-color:rgba(64,240,140,.3);color:#40f08c">你</div>':''}`;}
+    else{div.className='pslot empty';div.innerHTML=`<div class="pem">👤</div><div class="pnm">等待玩家 ${i+1}</div>`;}
     slots.appendChild(div);
   }
-
-  const hint = document.getElementById('wait-hint');
-  const startBtn = document.getElementById('btn-start');
-  if(C.isHost) {
-    const cnt = players.length;
-    startBtn.disabled = cnt < 2;
-    hint.textContent = cnt>=4 ? '人數已滿！可以開始' : `已 ${cnt}/4 人，需要至少2人才能開始`;
-  }
+  if(C.isHost){document.getElementById('btn-start').disabled=players.length<2;document.getElementById('wait-hint').textContent=players.length>=4?'人數已滿！可以開始':`已 ${players.length}/4 人，至少需2人`;}
 }
+function sendConfig(){if(!C.isHost)return;send({type:'setConfig',base:parseInt(document.getElementById('cfg-base').value)||100,tai:parseInt(document.getElementById('cfg-tai').value)||40});}
+function sendStart(){send({type:'startGame'});}
 
-function sendConfig() {
-  if(!C.isHost) return;
-  const base = parseInt(document.getElementById('cfg-base').value)||100;
-  const tai = parseInt(document.getElementById('cfg-tai').value)||40;
-  send({ type:'setConfig', base, tai });
-}
-
-function sendStart() {
-  send({ type:'startGame' });
-}
-
-// ══════════════════════════════════════
-// DICE
-// ══════════════════════════════════════
-function animateDice(msg) {
-  const [d1,d2,d3] = [document.getElementById('d1'),document.getElementById('d2'),document.getElementById('d3')];
+// ── Dice ──
+function animateDice(msg){
+  const [d1,d2,d3]=[document.getElementById('d1'),document.getElementById('d2'),document.getElementById('d3')];
   let count=0;
-  const iv = setInterval(()=>{
+  const iv=setInterval(()=>{
     d1.textContent=DICE_FACES[Math.floor(Math.random()*6)];
     d2.textContent=DICE_FACES[Math.floor(Math.random()*6)];
     d3.textContent=DICE_FACES[Math.floor(Math.random()*6)];
-    d1.classList.add('roll'); d2.classList.add('roll'); d3.classList.add('roll');
     count++;
-    if(count>10) {
+    if(count>10){
       clearInterval(iv);
       d1.textContent=DICE_FACES[msg.values[0]-1];
       d2.textContent=DICE_FACES[msg.values[1]-1];
@@ -613,270 +544,160 @@ function animateDice(msg) {
   },70);
 }
 
-// ══════════════════════════════════════
-// GAME RENDER
-// ══════════════════════════════════════
-function tileKey(t){if(t.flower!=null)return`F${t.flower}`;if(t.honor!=null)return`H${t.honor}`;return`${t.suit}${t.num}`;}
-function tileLabel(t){if(t.flower!=null)return FLOWER_LABELS[t.flower];if(t.honor!=null)return HONORS[t.honor];return t.num+SUIT_N[t.suit];}
-function tileChar(t){if(t.flower!=null)return FLOWER_LABELS[t.flower].slice(0,1);if(t.honor!=null)return HONORS[t.honor];return['','１','２','３','４','５','６','７','８','９'][t.num];}
-function tileSub(t){if(t.flower!=null||t.honor!=null)return'';return SUIT_N[t.suit];}
-function tileCls(t){if(t.flower!=null)return'ft';if(t.honor!=null){if(t.honor===4)return'rt';if(t.honor===5)return'gt';return'';}if(t.suit===0)return'rt';return'';}
-function sortHand(h){return[...h].sort((a,b)=>{if(a.honor!=null&&b.honor!=null)return a.honor-b.honor;if(a.honor!=null)return 1;if(b.honor!=null)return-1;if(a.suit!==b.suit)return a.suit-b.suit;return a.num-b.num;});}
-
-function makeTile(tile,size,extra,onclick){
-  const d=document.createElement('div');
-  d.className=`tile ${size} ${tileCls(tile)} ${extra||''}`;
-  d.innerHTML=`${tileChar(tile)}<span class="tsub">${tileSub(tile)}</span>`;
-  d.title=tileLabel(tile);
-  if(onclick) d.onclick=onclick;
-  return d;
-}
-
-function renderGame() {
-  const gs = C.gameState;
-  if(!gs) return;
+// ── Game render ──
+function renderGame(){
+  const gs=C.gameState;if(!gs)return;
   show('s-game');
-
-  const windNames=['東','南','西','北'];
-  const roundW = Math.floor((gs.round-1)/4);
-  document.getElementById('ri').textContent=`${windNames[roundW]||'北'}風 第${((gs.round-1)%4)+1}局`;
+  const wn=['東','南','西','北'];
+  document.getElementById('ri').textContent=`${wn[Math.floor((gs.round-1)/4)]||'北'}風 第${((gs.round-1)%4)+1}局`;
   document.getElementById('deck-cnt').textContent=gs.deckCount;
   document.getElementById('show-base').textContent=gs.base;
   document.getElementById('show-tai').textContent=gs.tai;
 
-  // Map seats to UI positions
-  // My seat = bottom (self), others = opponents in positions 2,3,4
-  // We need to rotate: seat (mySeat+1)%4 → pp2, (mySeat+2)%4 → pp3, (mySeat+3)%4 → pp4
-  const oppSeats = [1,2,3].map(offset => (C.mySeat + offset) % 4);
+  const isMyTurn=gs.currentTurn===C.mySeat;
+  const hurry=document.getElementById('btn-hurry');
+  hurry.style.display=(!isMyTurn&&gs.phase!=='waiting')?'':'none';
+  if(!isMyTurn&&gs.players[gs.currentTurn]) hurry.textContent=`⚡ 催 ${gs.players[gs.currentTurn].name}！`;
 
-  oppSeats.forEach((si, idx) => {
-    const ui = idx + 2; // 2,3,4
-    const p = gs.players[si];
-    if(!p) return;
-    document.getElementById(`av${ui}`).textContent = p.char?.e||'👤';
-    document.getElementById(`nm${ui}`).textContent = p.name;
-    document.getElementById(`ch${ui}`).textContent = `${p.chips>=0?'+':''}${p.chips.toLocaleString()}`;
-    document.getElementById(`wb${ui}`).textContent = WINDS[p.wind]||'';
-
-    const pp = document.getElementById(`pp${ui}`);
-    pp.classList.toggle('active', gs.currentTurn===si);
-    pp.classList.toggle('dealer', si===gs.dealer);
-
-    // Back tiles
-    const bt = document.getElementById(`bt${ui}`);
-    bt.innerHTML='';
-    for(let i=0;i<(p.handCount||0);i++){const b=document.createElement('div');b.className='tb';bt.appendChild(b);}
-
-    // Open melds
-    const om = document.getElementById(`om${ui}`);
-    om.innerHTML='';
+  // 對手
+  [1,2,3].map(o=>(C.mySeat+o)%4).forEach((si,idx)=>{
+    const ui=idx+2;const p=gs.players[si];if(!p)return;
+    document.getElementById(`av${ui}`).textContent=p.char?.e||'👤';
+    document.getElementById(`nm${ui}`).textContent=p.name;
+    document.getElementById(`ch${ui}`).textContent=`${p.chips>=0?'+':''}${p.chips.toLocaleString()}`;
+    document.getElementById(`wb${ui}`).textContent=WINDS[p.wind]||'';
+    document.getElementById(`pp${ui}`).classList.toggle('active',gs.currentTurn===si);
+    document.getElementById(`pp${ui}`).classList.toggle('dealer',si===gs.dealer);
+    const bt=document.getElementById(`bt${ui}`);bt.innerHTML='';
+    for(let i=0;i<(p.handCount||0);i++){const b=document.createElement('div');b.className='tb-back';bt.appendChild(b);}
+    const om=document.getElementById(`om${ui}`);om.innerHTML='';
     (p.melds||[]).forEach(m=>m.tiles.forEach(t=>om.appendChild(makeTile(t,'sm','dt'))));
-
-    // Flowers
-    const fl = document.getElementById(`fl${ui}`);
-    fl.textContent = p.flowers?.length>0 ? '🌸×'+p.flowers.length : '';
+    document.getElementById(`fl${ui}`).textContent=p.flowers?.length>0?'🌸×'+p.flowers.length:'';
   });
 
-  // Self
-  const me = gs.players[C.mySeat];
-  if(me) {
-    document.getElementById('av1').textContent = me.char?.e||'👤';
-    document.getElementById('nm1').textContent = me.name;
-    document.getElementById('ch1').textContent = `${me.chips>=0?'+':''}${me.chips.toLocaleString()} 籌碼`;
-    document.getElementById('wb1').textContent = WINDS[me.wind]||'';
-    document.getElementById('fl1').textContent = me.flowers?.length>0 ? '🌸×'+me.flowers.length : '';
-
-    // Self panel highlight
-    const selfPanel = document.querySelector('.self-panel');
-    selfPanel.style.borderColor = gs.currentTurn===C.mySeat ? 'var(--gold)' : 'rgba(255,255,255,.15)';
+  const me=gs.players[C.mySeat];
+  if(me){
+    document.getElementById('av1').textContent=me.char?.e||'👤';
+    document.getElementById('nm1').textContent=me.name;
+    document.getElementById('ch1').textContent=`${me.chips>=0?'+':''}${me.chips.toLocaleString()} 籌碼`;
+    document.getElementById('wb1').textContent=WINDS[me.wind]||'';
+    document.getElementById('fl1').textContent=me.flowers?.length>0?'🌸×'+me.flowers.length:'';
+    document.querySelector('.self-panel').style.borderColor=isMyTurn?'var(--gold)':'rgba(255,255,255,.15)';
   }
 
-  renderSelfHand(me, gs);
+  renderSelfHand(me,gs);
   renderDiscardPile(gs);
   updateButtons(gs);
-  updateTimer();
+
+  const hint=document.getElementById('sel-hint');
+  if(isMyTurn&&gs.phase==='discard')
+    hint.textContent=C.selIdx>=0?'✅ 已選牌 → 按「出牌」打出':'👆 點選要打出的牌，再按「出牌」';
+  else hint.textContent='';
 }
 
-function renderSelfHand(me, gs) {
-  if(!me) return;
-  const c = document.getElementById('self-tiles');
-  c.innerHTML = '';
-  (me.melds||[]).forEach(meld => {
-    const g = document.createElement('div'); g.className='meld-g';
+function renderSelfHand(me,gs){
+  if(!me)return;
+  const c=document.getElementById('self-tiles');c.innerHTML='';
+  (me.melds||[]).forEach(meld=>{
+    const g=document.createElement('div');g.className='meld-g';
     meld.tiles.forEach(t=>g.appendChild(makeTile(t,'lg','dt')));
     c.appendChild(g);
-    const sep=document.createElement('div'); sep.className='hsep'; c.appendChild(sep);
+    const sep=document.createElement('div');sep.className='hsep';c.appendChild(sep);
   });
-  sortHand(me.hand||[]).forEach((tile, i) => {
-    const isSel = i===C.selIdx;
-    const el = makeTile(tile,'lg',isSel?'sel':'',()=>{
-      if(gs.phase==='discard'&&gs.currentTurn===C.mySeat){
-        C.selIdx=i; renderSelfHand(me,gs);
-      }
+  const canPick=gs.currentTurn===C.mySeat&&gs.phase==='discard';
+  sortHand(me.hand||[]).forEach((tile,i)=>{
+    const el=makeTile(tile,'lg',i===C.selIdx?'sel':'',()=>{
+      if(canPick){C.selIdx=i;renderSelfHand(me,gs);updateButtons(gs);}
     });
     c.appendChild(el);
   });
 }
 
-function renderDiscardPile(gs) {
-  const pile = document.getElementById('dpile');
-  pile.innerHTML='';
-  (gs.discards||[]).forEach((d,i) => {
-    const isLast = i===gs.discards.length-1;
-    pile.appendChild(makeTile(d.tile,'sm','dt'+(isLast?' last-d':'')));
-  });
-  const lbl = document.getElementById('dlbl');
-  if(gs.lastDiscard){
-    const fromName = gs.players[gs.lastDiscardBy]?.name||'';
-    lbl.textContent=`${fromName} 打: ${tileLabel(gs.lastDiscard)}`;
-  } else lbl.textContent='棄牌區';
+function updateButtons(gs){
+  const isMy=gs.currentTurn===C.mySeat;
+  const act=C.pendingAction||{};
+  document.getElementById('btn-draw').disabled=!(isMy&&gs.phase==='draw');
+  document.getElementById('btn-disc').disabled=!(isMy&&gs.phase==='discard'&&C.selIdx>=0);
+  document.getElementById('btn-pong').disabled=!act.canPong;
+  document.getElementById('btn-chi').disabled=!act.canChi;
+  document.getElementById('btn-kong').disabled=!(act.canKong||(isMy&&gs.phase==='discard'&&checkSelfKong()));
+  document.getElementById('btn-win').disabled=!act.canWin;
+  document.getElementById('btn-pass').disabled=!(act.canPong||act.canChi||act.canKong||act.canWin);
 }
 
-function updateButtons(gs) {
-  const isMyTurn = gs.currentTurn===C.mySeat;
-  const act = C.pendingAction || {};
-
-  document.getElementById('btn-draw').disabled = !(isMyTurn && gs.phase==='draw');
-  document.getElementById('btn-disc').disabled = !(isMyTurn && gs.phase==='discard' && C.selIdx>=0);
-  document.getElementById('btn-pong').disabled = !act.canPong;
-  document.getElementById('btn-chi').disabled = !act.canChi;
-  document.getElementById('btn-kong').disabled = !(act.canKong || (isMyTurn && gs.phase==='discard' && checkSelfKong()));
-  document.getElementById('btn-win').disabled = !(act.canWin || (isMyTurn && gs.phase==='discard' && act.canWin));
-  document.getElementById('btn-pass').disabled = !(act.canPong||act.canChi||act.canKong||act.canWin);
-  document.getElementById('btn-win').disabled = !act.canWin;
-}
-
-function checkSelfKong() {
-  const gs = C.gameState; if(!gs) return false;
-  const me = gs.players[C.mySeat]; if(!me) return false;
-  const counts={};
-  (me.hand||[]).forEach(t=>{const k=tileKey(t);counts[k]=(counts[k]||0)+1;});
+function checkSelfKong(){
+  const gs=C.gameState;if(!gs)return false;
+  const me=gs.players[C.mySeat];if(!me)return false;
+  const counts={};(me.hand||[]).forEach(t=>{const k=tileKey(t);counts[k]=(counts[k]||0)+1;});
   return Object.values(counts).some(c=>c>=4);
 }
+function setStatus(t){document.getElementById('status-txt').textContent=t;}
 
-function updateTimer() {
-  // Simple timer bar (visual only — server handles actual timeout)
-  clearInterval(C.timerInterval);
-  if(!C.gameState) return;
-  const act = C.pendingAction;
-  const isMyTurn = C.gameState.currentTurn===C.mySeat;
-  if(!isMyTurn && !act) {
-    document.getElementById('timer-bar').style.width='100%';
-    return;
-  }
-  let pct=100;
-  C.timerInterval=setInterval(()=>{
-    pct-=1;
-    document.getElementById('timer-bar').style.width=pct+'%';
-    if(pct<=0) clearInterval(C.timerInterval);
-  },300);
-}
-
-function setStatus(txt){document.getElementById('status-txt').textContent=txt;}
-
-// ══════════════════════════════════════
-// PLAYER ACTIONS
-// ══════════════════════════════════════
+// ── Actions ──
 function sendDraw(){send({type:'draw'});}
-
 function sendDiscard(){
   if(C.selIdx===-1){toast('請先點選要打出的牌');return;}
-  const gs=C.gameState; if(!gs) return;
-  const me=gs.players[C.mySeat]; if(!me) return;
-  const sorted=sortHand(me.hand||[]);
-  const tile=sorted[C.selIdx];
-  if(!tile) return;
-  C.selIdx=-1;
-  send({type:'discard',tile});
+  const gs=C.gameState;if(!gs)return;
+  const tile=sortHand(gs.players[C.mySeat]?.hand||[])[C.selIdx];
+  if(!tile)return;
+  C.selIdx=-1;send({type:'discard',tile});
 }
-
 function sendPong(){send({type:'pong'});}
-
+function sendKong(){send({type:'kong'});}
+function sendWin(){send({type:'win'});}
+function sendPass(){send({type:'passAction'});}
+function sendHurry(){
+  const gs=C.gameState;if(!gs)return;
+  send({type:'hurry',targetSeat:gs.currentTurn});
+  const b=document.getElementById('btn-hurry');
+  b.disabled=true;b.textContent='已催促...';
+  setTimeout(()=>{b.disabled=false;const p=C.gameState?.players[C.gameState?.currentTurn];b.textContent=`⚡ 催 ${p?.name||''}！`;},5000);
+}
 function openChiPicker(){
-  const act=C.pendingAction; if(!act?.canChi||!act.chiOpts) return;
+  const act=C.pendingAction;if(!act?.canChi||!act.chiOpts)return;
   C.chiOpts=act.chiOpts;
   if(C.chiOpts.length===1){sendChiOpt(0);return;}
-  const opts=document.getElementById('chi-opts');
-  opts.innerHTML='';
+  const opts=document.getElementById('chi-opts');opts.innerHTML='';
   C.chiOpts.forEach((opt,i)=>{
-    const div=document.createElement('div');
-    div.className='chi-opt';
+    const div=document.createElement('div');div.className='chi-opt';
     opt.forEach(t=>div.appendChild(makeTile(t,'md','dt')));
     div.onclick=()=>{closeOverlay('ov-chi');sendChiOpt(i);};
     opts.appendChild(div);
   });
   document.getElementById('ov-chi').classList.add('active');
 }
+function sendChiOpt(i){send({type:'chi',optIdx:i});}
+function sendNextRound(){if(!C.isHost)return;C.discPos=[];send({type:'nextRound'});closeOverlay('ov-win');}
 
-function sendChiOpt(idx){send({type:'chi',optIdx:idx});}
-function sendKong(){send({type:'kong'});}
-function sendWin(){send({type:'win'});}
-function sendPass(){send({type:'passAction'});}
-
-function sendNextRound(){
-  if(!C.isHost) return;
-  send({type:'nextRound'});
-  closeOverlay('ov-win');
-}
-
-// ══════════════════════════════════════
-// WIN MODAL
-// ══════════════════════════════════════
-function showWinModal(msg) {
+// ── Win modal ──
+function showWinModal(msg){
   document.getElementById('wm-char').textContent=msg.winnerChar?.e||'🀄';
   document.getElementById('wm-title').textContent=msg.seat===C.mySeat?'🎉 你胡了！':`${msg.winnerName} 胡牌！`;
   document.getElementById('wm-method').textContent=msg.method;
-
-  const yt=document.getElementById('wm-yaku');
-  yt.innerHTML=msg.yakus.map(y=>`<div class="yr"><span class="yn">${y.name}</span><span class="ys">${y.tai}台</span></div>`).join('')
-    +`<div class="ytotal"><span>合計</span><span>${msg.totalTai}台 = ${msg.totalAmt}元</span></div>`;
-
-  const pt=document.getElementById('wm-pay');
-  pt.innerHTML=(msg.playerNames||[]).map((n,i)=>{
-    const d=msg.pays[i]||0;
-    const cls=d>0?'pos':d<0?'neg':'';
-    return`<div class="pr"><span class="pn">${msg.playerChars?.[i]?.e||''} ${n}</span><span class="${cls}">${d>0?'+':''}${d.toLocaleString()}</span></div>`;
-  }).join('');
-
-  const nextBtn=document.getElementById('wm-next');
-  const waitTxt=document.getElementById('wm-wait');
-  nextBtn.style.display=C.isHost?'':'none';
-  waitTxt.style.display=C.isHost?'none':'';
-
+  document.getElementById('wm-yaku').innerHTML=msg.yakus.map(y=>`<div class="yr"><span class="yn">${y.name}</span><span class="ys">${y.tai}台</span></div>`).join('')+`<div class="ytotal"><span>合計</span><span>${msg.totalTai}台 = ${msg.totalAmt}元</span></div>`;
+  document.getElementById('wm-pay').innerHTML=(msg.playerNames||[]).map((n,i)=>{const d=msg.pays[i]||0;const cls=d>0?'pos':d<0?'neg':'';return`<div class="pr"><span class="pn">${msg.playerChars?.[i]?.e||''} ${n}</span><span class="${cls}">${d>0?'+':''}${d.toLocaleString()}</span></div>`;}).join('');
+  document.getElementById('wm-next').style.display=C.isHost?'':'none';
+  document.getElementById('wm-wait').style.display=C.isHost?'none':'';
   document.getElementById('ov-win').classList.add('active');
 }
 
-// ══════════════════════════════════════
-// SETTLE
-// ══════════════════════════════════════
+// ── Settle ──
 function openSettle(){
-  const gs=C.gameState; if(!gs) return;
-  const rows=document.getElementById('settle-rows');
-  rows.innerHTML=gs.players.map(p=>{
-    const d=p.chips;
-    const cls=d>0?'pos':d<0?'neg':'';
-    return`<div class="settle-row"><div class="sc">${p.char?.e||'👤'}</div><div class="si"><div class="sn">${p.name}</div><div class="ss">累積</div></div><div class="sd ${cls}">${d>0?'+':''}${d.toLocaleString()}</div></div>`;
-  }).join('');
+  const gs=C.gameState;if(!gs)return;
+  document.getElementById('settle-rows').innerHTML=gs.players.map(p=>{const d=p.chips;const cls=d>0?'pos':d<0?'neg':'';return`<div class="settle-row"><div class="sc">${p.char?.e||'👤'}</div><div class="si"><div class="sn">${p.name}</div><div class="ss">累積</div></div><div class="sd ${cls}">${d>0?'+':''}${d.toLocaleString()}</div></div>`;}).join('');
   document.getElementById('ov-settle').classList.add('active');
 }
 
-// ══════════════════════════════════════
-// UTILS
-// ══════════════════════════════════════
-function send(obj){if(ws&&ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify(obj));}
+// ── Utils ──
+function send(o){if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify(o));}
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function closeOverlay(id){document.getElementById(id).classList.remove('active');}
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2500);}
 
-// ══════════════════════════════════════
-// INIT
-// ══════════════════════════════════════
 renderCharGrid();
 connectWS();
-
-// Auto-fill room code from URL ?room=XXXX
-const urlRoom = new URLSearchParams(location.search).get('room');
-if(urlRoom) document.getElementById('inp-code').value=urlRoom.toUpperCase();
+const urlRoom=new URLSearchParams(location.search).get('room');
+if(urlRoom)document.getElementById('inp-code').value=urlRoom.toUpperCase();
 </script>
 </body>
 </html>
