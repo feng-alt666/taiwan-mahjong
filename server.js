@@ -337,6 +337,19 @@ class Room {
     });
   }
 
+  // ── Wind Draw (抽東南西北) ──
+  startWindDraw() {
+    // 隨機打亂風牌分配，讓客戶端顯示抽牌動畫
+    const winds = ['東','南','西','北'];
+    const shuffled = [...winds].sort(() => Math.random() - 0.5);
+    this.broadcastAll({
+      type: 'windDraw',
+      // 每個座位對應的風牌（結果先算好，動畫結束後揭示）
+      assignment: shuffled, // seat[i] gets wind shuffled[i]
+      dealerSeat: shuffled.indexOf('東'), // 抽到東的人當莊
+    });
+  }
+
   // ── Dice ──
   rollDiceAndStart() {
     const d1 = Math.floor(Math.random() * 6) + 1;
@@ -773,8 +786,29 @@ wss.on('connection', (ws) => {
           });
         }
         clientRoom.started = true;
+        // 先廣播 gameStart，再進行抽東南西北
         clientRoom.broadcastAll({ type: 'gameStart' });
-        setTimeout(() => clientRoom.rollDiceAndStart(), 500);
+        // 發送抽牌請求（隨機分配風牌）
+        setTimeout(() => clientRoom.startWindDraw(), 500);
+        break;
+      }
+      // ── 抽牌決定莊家（客戶端完成後通知伺服器） ──
+      case 'windDrawDone': {
+        if (!clientRoom || clientSeat !== 0) return; // 只有房主能提交
+        // 現在執行骰子
+        clientRoom.rollDiceAndStart();
+        break;
+      }
+      // ── 一方要求結束遊戲 ──
+      case 'endGame': {
+        if (!clientRoom) return;
+        const p = clientRoom.players[clientSeat];
+        clientRoom.broadcastAll({
+          type: 'endGame',
+          requestBy: clientSeat,
+          requestName: p?.name || '',
+          chips: clientRoom.players.map(pl => pl.chips),
+        });
         break;
       }
       case 'draw': {
@@ -820,8 +854,14 @@ wss.on('connection', (ws) => {
       case 'nextRound': {
         if (!clientRoom || clientSeat !== 0) return;
         clientRoom.round++;
-        clientRoom.dealer = (clientRoom.dealer + 1) % 4;
-        clientRoom.initRound();
+        // 每將第一局才抽牌；其他局直接骰骰子
+        if (clientRoom.round % 4 === 1) {
+          clientRoom.broadcastAll({ type: 'gameStart' });
+          setTimeout(() => clientRoom.startWindDraw(), 300);
+        } else {
+          clientRoom.dealer = (clientRoom.dealer + 1) % 4;
+          clientRoom.rollDiceAndStart();
+        }
         break;
       }
       case 'passAction': {

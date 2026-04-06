@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -1806,7 +1805,34 @@ function hMsg(msg){
     case 'lobby':updLobby(msg);break;
     case 'configUpdated':document.getElementById('cb').value=msg.base;document.getElementById('ct').value=msg.tai;break;
     case 'error':showErr(msg.msg);break;
-    case 'gameStart':C.discPos=[];show('s-dice');toast('遊戲開始！');break;
+    case 'gameStart':
+      C.discPos=[];C.selIdx=-1;
+      // 不直接跳到骰子，等 windDraw
+      toast('遊戲開始！');
+      break;
+    case 'windDraw': {
+      // 伺服器送來抽牌結果，顯示抽牌動畫
+      C.windAssignment = msg.assignment;   // seat[i] -> wind char
+      C.windDealerSeat = msg.dealerSeat;
+      _flippedCount = 0;
+      show('s-wind');
+      renderWindCardsMulti(msg.assignment, msg.dealerSeat);
+      break;
+    }
+    case 'endGame': {
+      // 有玩家要求結束 → 顯示最終結算
+      stopYTOnEnd();
+      const chips = msg.chips || [];
+      const pls = GS?.players || [];
+      document.getElementById('serows').innerHTML = pls.map((p,i) => {
+        const d = chips[i] ?? p.chips ?? 0;
+        const cls = d > 0 ? 'pos' : d < 0 ? 'neg' : '';
+        return `<div class="srow"><div class="sc">${p.char?.e||'👤'}</div><div class="si"><div class="sn">${p.name}</div><div class="ss">${i===msg.requestBy?'申請結束':'累積'}</div></div><div class="sd ${cls}">${d>0?'+':''}${d.toLocaleString()}</div></div>`;
+      }).join('');
+      document.getElementById('ov-settle').classList.add('on');
+      if (msg.requestName) toast(`🏁 ${msg.requestName} 申請結束遊戲`);
+      break;
+    }
     case 'dice':animDice(msg);break;
     case 'roundStart':C.discPos=[];toast(`第 ${msg.round} 局開始！`);break;
     case 'state':GS=msg;renderMulti();break;
@@ -2448,19 +2474,18 @@ const _hMsgPatch = function(msg) {
       if (!chatOpen) toast(`${msg.char?.e || '😂'} ${msg.name}: ${msg.taunt}`);
       break;
     case 'rtc-join':
-      if (msg.seat !== C.mySeat) {
-        voiceSeats.add(msg.seat);
-        updateVoiceUI();
-        addSystemMsg(`🎙️ ${msg.name} 加入語音`);
-        if (voiceActive) handleRtcJoin(msg.seat);
+      if (msg.seat !== (C.mySeat||0)) {
+        _voiceSeats.add(msg.seat);
+        updateVoiceStatusBar();
+        addSystemMsg(`🎙️ ${msg.name||'玩家'} 加入語音`);
+        if (_voiceActive) handleRtcJoin(msg.seat);
       }
       break;
     case 'rtc-leave':
-      voiceSeats.delete(msg.seat);
-      updateVoiceUI();
-      const leaveName = GS?.players[msg.seat]?.name || '';
-      if (leaveName) addSystemMsg(`🔇 ${leaveName} 離開語音`);
+      _voiceSeats.delete(msg.seat);
+      updateVoiceStatusBar();
       handleRtcLeave(msg.seat);
+      addSystemMsg(`🔇 ${GS?.players[msg.seat]?.name||'玩家'} 離開語音`);
       break;
     case 'rtc-offer':
       handleRtcOffer(msg.from, msg.sdp);
@@ -2513,6 +2538,13 @@ window.show = function(id) {
   }
 };
 
+
+// 停止 YouTube
+function stopYTOnEnd() {
+  const frame = document.getElementById('yt-frame');
+  if (frame) { frame.src = 'about:blank'; }
+  if (ytOpen) toggleYT();
+}
 
 // ══════════════════════════════════════
 // YOUTUBE BACKGROUND MUSIC
@@ -2580,47 +2612,84 @@ if (typeof window.show === 'function') {
 }
 
 // ══════════════════════════════════════
-// VOICE CALL - FIXED VERSION
-// Uses WebRTC with better error handling
-// Requires HTTPS (Railway provides this)
+// VOICE CALL - 使用公開 TURN Server 提升穿透率
 // ══════════════════════════════════════
 let _voiceLocalStream = null;
-let _voicePeers = {}; // seat -> RTCPeerConnection
+let _voicePeers = {};      // seat -> RTCPeerConnection
 let _voiceActive = false;
 let _voiceSeats = new Set();
 let _voiceMuted = false;
 
+// 使用免費公開 STUN + TURN servers
+const RTC_CFG = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun.cloudflare.com:3478' },
+    // 免費 TURN（metered.ca 公開測試用）
+    {
+      urls: 'turn:a.relay.metered.ca:80',
+      username: 'openrelayproject',
+      credential: 'openrelayproject'
+    },
+    {
+      urls: 'turn:a.relay.metered.ca:443',
+      username: 'openrelayproject',
+      credential: 'openrelayproject'
+    },
+    {
+      urls: 'turn:a.relay.metered.ca:443?transport=tcp',
+      username: 'openrelayproject',
+      credential: 'openrelayproject'
+    },
+  ]
+};
+
 async function startVoiceCall() {
   const btn = document.getElementById('voice-btn');
   if (_voiceActive) {
+    if (_voiceMuted) {
+      // 取消靜音
+      _voiceMuted = false;
+      _voiceLocalStream?.getAudioTracks().forEach(t => { t.enabled = true; });
+      if (btn) btn.textContent = '🔇 靜音';
+      toast('🎤 已取消靜音');
+      return;
+    }
     stopVoiceCall();
     return;
   }
-  // Check HTTPS
-  if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-    addSystemMsg('❌ 語音通話需要 HTTPS 連線（Railway 已支援）');
-    toast('❌ 需要 HTTPS 才能使用麥克風');
+
+  if (btn) { btn.textContent = '⏳ 開啟中...'; btn.disabled = true; }
+
+  try {
+    _voiceLocalStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      video: false
+    });
+  } catch(e) {
+    if (btn) { btn.textContent = '🎙️ 語音'; btn.disabled = false; }
+    let msg = '無法開啟麥克風';
+    if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError')
+      msg = '❌ 請點網址列左側的🔒，允許麥克風後重試';
+    else if (e.name === 'NotFoundError')
+      msg = '❌ 找不到麥克風裝置';
+    else if (e.name === 'NotSupportedError')
+      msg = '❌ 瀏覽器不支援，請用 Chrome';
+    toast(msg);
+    addSystemMsg(msg);
     return;
   }
-  try {
-    _voiceLocalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    _voiceActive = true;
-    _voiceMuted = false;
-    _voiceSeats.add(C.mySeat || 0);
-    if (btn) { btn.textContent = '🔇 靜音'; btn.classList.add('active'); }
-    addSystemMsg('🎙️ 你加入語音通話');
-    toast('🎙️ 語音通話已開啟');
-    updateVoiceStatusBar();
-    if (MODE === 'multi') send2({ type: 'rtc-join' });
-  } catch(e) {
-    let msg = '無法開啟麥克風';
-    if (e.name === 'NotAllowedError') msg = '請在瀏覽器允許麥克風權限後再試';
-    else if (e.name === 'NotFoundError') msg = '找不到麥克風裝置';
-    else if (e.name === 'NotSupportedError') msg = '瀏覽器不支援語音通話';
-    toast('❌ ' + msg);
-    addSystemMsg('❌ 語音失敗：' + msg);
-    if (btn) btn.textContent = '🎙️ 語音';
-  }
+
+  _voiceActive = true;
+  _voiceMuted = false;
+  _voiceSeats.add(C.mySeat || 0);
+  if (btn) { btn.textContent = '🔇 靜音'; btn.classList.add('active'); btn.disabled = false; }
+  addSystemMsg('🎙️ 你已加入語音通話');
+  toast('🎙️ 語音開啟！');
+  updateVoiceStatusBar();
+
+  if (MODE === 'multi') send2({ type: 'rtc-join' });
 }
 
 function stopVoiceCall() {
@@ -2628,24 +2697,95 @@ function stopVoiceCall() {
     _voiceLocalStream.getTracks().forEach(t => t.stop());
     _voiceLocalStream = null;
   }
-  Object.values(_voicePeers).forEach(pc => pc.close());
+  Object.values(_voicePeers).forEach(pc => { try { pc.close(); } catch(e){} });
   _voicePeers = {};
   _voiceActive = false;
+  _voiceMuted = false;
   _voiceSeats.delete(C.mySeat || 0);
   const btn = document.getElementById('voice-btn');
   if (btn) { btn.textContent = '🎙️ 語音'; btn.classList.remove('active'); }
-  addSystemMsg('🔇 你離開語音通話');
+  addSystemMsg('🔇 已離開語音通話');
   updateVoiceStatusBar();
   if (MODE === 'multi') send2({ type: 'rtc-leave' });
 }
 
-function toggleMute() {
-  if (!_voiceLocalStream) return;
-  _voiceMuted = !_voiceMuted;
-  _voiceLocalStream.getAudioTracks().forEach(t => { t.enabled = !_voiceMuted; });
-  const btn = document.getElementById('voice-btn');
-  if (btn) btn.textContent = _voiceMuted ? '🎤 取消靜音' : '🔇 靜音';
-  toast(_voiceMuted ? '🔇 已靜音' : '🎤 已取消靜音');
+async function _createPC(remoteSeat) {
+  const pc = new RTCPeerConnection(RTC_CFG);
+  _voicePeers[remoteSeat] = pc;
+
+  // 加入本地音訊
+  if (_voiceLocalStream) {
+    _voiceLocalStream.getTracks().forEach(t => pc.addTrack(t, _voiceLocalStream));
+  }
+
+  // 收到遠端音訊
+  pc.ontrack = (e) => {
+    const audio = new Audio();
+    audio.srcObject = e.streams[0];
+    audio.autoplay = true;
+    audio.id = `voice-audio-${remoteSeat}`;
+    // 移除舊的
+    document.getElementById(`voice-audio-${remoteSeat}`)?.remove();
+    document.body.appendChild(audio);
+    audio.play().catch(() => {});
+  };
+
+  // ICE candidate
+  pc.onicecandidate = (e) => {
+    if (e.candidate) {
+      send2({ type: 'rtc-ice', to: remoteSeat, candidate: e.candidate });
+    }
+  };
+
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === 'connected') {
+      addSystemMsg(`🎙️ 與玩家${remoteSeat+1}語音連接成功`);
+    } else if (['disconnected','failed','closed'].includes(pc.connectionState)) {
+      addSystemMsg(`🔇 玩家${remoteSeat+1}語音斷開`);
+    }
+  };
+
+  return pc;
+}
+
+async function handleRtcJoin(fromSeat) {
+  if (!_voiceActive || fromSeat === (C.mySeat || 0)) return;
+  _voiceSeats.add(fromSeat);
+  updateVoiceStatusBar();
+  // 主動發 offer
+  const pc = await _createPC(fromSeat);
+  const offer = await pc.createOffer({ offerToReceiveAudio: true });
+  await pc.setLocalDescription(offer);
+  send2({ type: 'rtc-offer', to: fromSeat, sdp: offer });
+}
+
+async function handleRtcOffer(fromSeat, sdp) {
+  if (!_voiceActive) return;
+  const pc = await _createPC(fromSeat);
+  await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  send2({ type: 'rtc-answer', to: fromSeat, sdp: answer });
+}
+
+async function handleRtcAnswer(fromSeat, sdp) {
+  const pc = _voicePeers[fromSeat];
+  if (pc) await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+}
+
+async function handleRtcIce(fromSeat, candidate) {
+  const pc = _voicePeers[fromSeat];
+  if (pc && candidate) {
+    try { await pc.addIceCandidate(new RTCIceCandidate(candidate)); } catch(e) {}
+  }
+}
+
+function handleRtcLeave(fromSeat) {
+  const pc = _voicePeers[fromSeat];
+  if (pc) { try { pc.close(); } catch(e){} delete _voicePeers[fromSeat]; }
+  document.getElementById(`voice-audio-${fromSeat}`)?.remove();
+  _voiceSeats.delete(fromSeat);
+  updateVoiceStatusBar();
 }
 
 function updateVoiceStatusBar() {
@@ -2654,227 +2794,72 @@ function updateVoiceStatusBar() {
   if (_voiceSeats.size === 0) { bar.style.display = 'none'; return; }
   bar.style.display = 'flex';
   const players = MODE === 'ai' ? AI.players : (GS?.players || []);
-  const names = [..._voiceSeats].map(s => players[s]?.name || `座位${s+1}`).join('、');
+  const names = [..._voiceSeats].map(s => players[s]?.char?.e + ' ' + (players[s]?.name || `座位${s+1}`)).join('、');
   bar.innerHTML = `<div class="voice-dot"></div><span>語音中：${names}</span>`;
 }
 
-// Override the old toggleVoice if it exists
+// 統一入口
 window.toggleVoice = startVoiceCall;
 
-// ══════════════════════════════════════
-// WIND DRAW (抽東南西北決定莊家)
-// Every new 將 (yi-jiang): draw wind tiles to decide dealer
-// ══════════════════════════════════════
-let _windDrawResult = null; // which seat got 東
 
-function startWindDraw() {
-  // Show the wind draw screen
-  show('s-wind');
-  renderWindCards();
-}
 
-function renderWindCards() {
+// ══════════════════════════════════════
+// 多人模式：抽東南西北
+// ══════════════════════════════════════
+function renderWindCardsMulti(assignment, dealerSeat) {
   const row = document.getElementById('wind-cards-row');
   const subtitle = document.getElementById('wind-subtitle');
   if (!row) return;
-
-  // 4 wind tiles shuffled, each player picks one face-down card
-  const winds = ['東','南','西','北'];
-  const shuffled = [...winds].sort(() => Math.random() - 0.5);
-
   row.innerHTML = '';
-  // Show 4 face-down cards
-  shuffled.forEach((wind, i) => {
+  window._mFlip = 0;
+  assignment.forEach((wind, i) => {
     const card = document.createElement('div');
     card.className = 'wind-card face-down';
     card.dataset.wind = wind;
-    card.dataset.idx = i;
-    card.innerHTML = `<span style="font-size:24px;color:rgba(255,255,255,.3)">🀫</span>`;
-    card.onclick = () => flipWindCard(card, i, shuffled);
+    const pls = GS?.players || [];
+    const nm = pls[i]?.name || `玩家${i+1}`;
+    card.innerHTML = `<span style="font-size:22px;color:rgba(255,255,255,.3)">🀫</span><span style="font-size:10px;color:rgba(255,255,255,.3);display:block;margin-top:4px">${nm}</span>`;
+    card.onclick = () => { if (!card.classList.contains('face-down')) return; flipWindMulti(card, i, assignment, dealerSeat); };
     row.appendChild(card);
   });
-
-  subtitle.textContent = '每人依序點一張牌，抽到「東」的人當莊家';
+  subtitle.textContent = C.isHost ? '依序點牌翻開，抽到「東」的人當莊家' : '等待翻牌中...';
   document.getElementById('wind-result').style.display = 'none';
   document.getElementById('wind-next-btn').style.display = 'none';
-  _windDrawResult = null;
 }
 
-let _flippedCount = 0;
-function flipWindCard(card, idx, shuffled) {
-  if (!card.classList.contains('face-down')) return;
-  card.classList.remove('face-down');
-  card.classList.add('flipping');
-  const wind = card.dataset.wind;
-  const windColors = {'東':'#8b5500','南':'#8b5500','西':'#8b5500','北':'#8b5500','中':'#cc1111','發':'#1a7a1a'};
-  const col = windColors[wind] || '#333';
-  card.innerHTML = `<span class="wc-char" style="color:${col}">${wind}</span><span class="wc-label">風</span>`;
+function flipWindMulti(card, idx, assignment, dealerSeat) {
+  card.classList.remove('face-down'); card.classList.add('flipping');
+  const wind = assignment[idx];
+  const WC = {'東':'#cc1111','南':'#8b5500','西':'#8b5500','北':'#1a5ca8'};
+  const pls = GS?.players || [];
+  const nm = pls[idx]?.name || `玩家${idx+1}`;
+  card.innerHTML = `<span class="wc-char" style="color:${WC[wind]||'#333'};font-size:28px">${wind}</span><span style="font-size:10px;color:rgba(0,0,0,.5)">${nm}</span>`;
   setTimeout(() => card.classList.remove('flipping'), 500);
-
-  _flippedCount++;
-  if (_flippedCount >= 4 || wind === '東') {
-    // Reveal all remaining cards
+  window._mFlip = (window._mFlip || 0) + 1;
+  if (window._mFlip >= 4) {
     setTimeout(() => {
-      document.querySelectorAll('.wind-card.face-down').forEach(c => {
-        c.classList.remove('face-down');
-        const w = c.dataset.wind;
-        const col2 = windColors[w] || '#333';
-        c.innerHTML = `<span class="wc-char" style="color:${col2}">${w}</span><span class="wc-label">風</span>`;
-      });
-      // Show result
       const res = document.getElementById('wind-result');
       res.style.display = 'block';
-      res.innerHTML = `抽到 <strong>東風</strong> 的人當莊家！<br>莊家請骰骰子決定發牌方向。`;
-      document.getElementById('wind-next-btn').style.display = 'inline-block';
-      _flippedCount = 0;
-    }, 600);
+      const dn = (GS?.players || [])[dealerSeat]?.name || `玩家${dealerSeat+1}`;
+      res.innerHTML = `抽到 <strong>東風</strong> 的是 <strong>${dn}</strong>！<br>由莊家骰骰子決定方向。`;
+      const nb = document.getElementById('wind-next-btn');
+      nb.style.display = 'inline-block';
+      if (C.isHost) {
+        nb.textContent = '🎲 骰骰子 →';
+        nb.disabled = false;
+        nb.onclick = () => {
+          send2({ type: 'windDrawDone' });
+          show('s-dice');
+          document.getElementById('dres').style.display = 'none';
+          document.getElementById('dsub').textContent = '骰骰子決定發牌方向...';
+        };
+      } else {
+        nb.textContent = '等待莊家骰骰子...';
+        nb.disabled = true;
+        nb.onclick = null;
+      }
+      window._mFlip = 0;
+    }, 700);
   }
 }
 
-function windDrawDone() {
-  // Proceed to dice screen
-  show('s-dice');
-  if (MODE === 'ai') {
-    // In AI mode, just show the dice animation
-    document.getElementById('dres').style.display = 'none';
-    document.getElementById('dsub').textContent = '莊家擲骰決定發牌方向...';
-    setTimeout(() => {
-      const v1=Math.ceil(Math.random()*6),v2=Math.ceil(Math.random()*6),v3=Math.ceil(Math.random()*6);
-      const tot=v1+v2+v3;
-      AI.dealer=(tot-1)%4;
-      const [d1,d2,d3]=[document.getElementById('d1'),document.getElementById('d2'),document.getElementById('d3')];
-      let cnt=0;const DF2=['⚀','⚁','⚂','⚃','⚄','⚅'];
-      const iv=setInterval(()=>{
-        d1.textContent=DF2[Math.floor(Math.random()*6)];
-        d2.textContent=DF2[Math.floor(Math.random()*6)];
-        d3.textContent=DF2[Math.floor(Math.random()*6)];
-        cnt++;
-        if(cnt>10){
-          clearInterval(iv);
-          d1.textContent=DF2[v1-1];d2.textContent=DF2[v2-1];d3.textContent=DF2[v3-1];
-          const r=document.getElementById('dres');r.style.display='block';
-          r.innerHTML=`點數: <strong>${tot}</strong><br>莊家: <strong>${AI.players[AI.dealer]?.name||''}</strong><br>方向: <strong>${tot%2===0?'逆時針':'順時針'}</strong>`;
-          setTimeout(()=>{show('s-game');aiInitRound();},1800);
-        }
-      },70);
-    }, 500);
-  }
-}
-
-// ══════════════════════════════════════
-// PATCH startAI to go to wind draw first
-// ══════════════════════════════════════
-const _origStartAI = typeof startAI === 'function' ? startAI.bind({}) : null;
-// Override startAI to show wind draw before dice
-if (typeof startAI === 'function') {
-  const origStartAI = startAI;
-  window.startAI = function() {
-    const name = document.getElementById('iname')?.value?.trim();
-    if (!name) { showErr && showErr('請輸入名字'); return; }
-    C.myName = name;
-    setBadge && setBadge('ai','🤖 人機對戰');
-    const av = CHARS.filter(c => c.id !== C.myChar.id);
-    shuf(av);
-    const ais = av.slice(0,3);
-    const startChips = (AI.base||100)*100 + (AI.tai||40)*8*50;
-    AI.startChips = startChips;
-    GAME_HISTORY = [];
-    AI.players = [
-      {name:C.myName,char:C.myChar,chips:startChips,hand:[],melds:[],flowers:[],wind:0},
-      {name:ais[0].n,char:ais[0],chips:startChips,hand:[],melds:[],flowers:[],wind:1},
-      {name:ais[1].n,char:ais[1],chips:startChips,hand:[],melds:[],flowers:[],wind:2},
-      {name:ais[2].n,char:ais[2],chips:startChips,hand:[],melds:[],flowers:[],wind:3},
-    ];
-    AI.dealer=0;AI.round=1;AI.totalRound=1;AI.gameOver=false;
-    C.base = parseInt(document.getElementById('aibase')?.value)||100;
-    C.tai  = parseInt(document.getElementById('aitai')?.value)||40;
-    AI.base = C.base; AI.tai = C.tai;
-    _flippedCount = 0;
-    startWindDraw(); // Wind draw first, then dice
-  };
-}
-</script>
-
-<!-- WIND DRAW SCREEN -->
-<div id="s-wind" class="screen">
-  <div class="wind-box">
-    <h2>🀄 抽牌決定莊家</h2>
-    <p id="wind-subtitle">每人抽一張牌，抽到東風的人當莊家</p>
-    <div class="wind-cards-row" id="wind-cards-row"></div>
-    <div class="wind-result" id="wind-result"></div>
-    <button class="btn-gold" id="wind-next-btn" onclick="windDrawDone()" style="display:none;margin-top:16px">骰骰子決定發牌方向 →</button>
-  </div>
-</div>
-
-<!-- YOUTUBE PANEL -->
-<button class="yt-toggle" id="yt-toggle" onclick="toggleYT()" style="display:none" title="背景音樂">▶</button>
-<div class="yt-panel" id="yt-panel">
-  <div class="yt-header">
-    <span>▶ 背景音樂 (YouTube)</span>
-    <button style="background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:16px;padding:0 2px" onclick="toggleYT()">✕</button>
-  </div>
-  <div class="yt-search-row">
-    <input class="yt-inp" id="yt-inp" placeholder="貼上 YouTube 網址或搜尋關鍵字..." onkeydown="if(event.key==='Enter')loadYT()">
-    <button class="yt-btn" onclick="loadYT()">播放</button>
-  </div>
-  <div class="yt-iframe-wrap" id="yt-wrap">
-    <iframe id="yt-frame" src="about:blank" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-  </div>
-  <div class="yt-preset-label">熱門推薦</div>
-  <div class="yt-presets">
-    <span class="yt-preset" onclick="playYTId('jfKfPfyJRdk')">Lo-fi 放鬆</span>
-    <span class="yt-preset" onclick="playYTId('5qap5aO4i9A')">Lofi Hip Hop</span>
-    <span class="yt-preset" onclick="playYTId('DWcJFNfaw9c')">爵士咖啡</span>
-    <span class="yt-preset" onclick="playYTId('lTRiuFIWV54')">古典輕音樂</span>
-    <span class="yt-preset" onclick="playYTId('36YnV9STBqc')">台灣老歌</span>
-    <span class="yt-preset" onclick="playYTId('4xDzrJKXOOY')">嘻哈節奏</span>
-  </div>
-</div>
-
-<!-- CHAT TOGGLE -->
-<button class="chat-toggle" id="chat-toggle" onclick="toggleChat()" style="display:none">
-  💬
-  <div class="badge" id="chat-badge"></div>
-</button>
-
-<!-- CHAT PANEL -->
-<div class="chat-panel" id="chat-panel">
-  <div class="chat-header">
-    <span>💬 聊天室</span>
-    <div style="display:flex;gap:6px;align-items:center">
-      <button class="voice-btn" id="voice-btn" onclick="startVoiceCall()">🎙️ 語音</button>
-      <button style="background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:16px;padding:0 2px" onclick="toggleChat()">✕</button>
-    </div>
-  </div>
-  <div class="voice-status-bar" id="voice-status-bar" style="display:none"></div>
-  <div class="chat-msgs" id="chat-msgs"></div>
-
-  <!-- Quick reactions / taunts -->
-  <div class="quick-reactions">
-    <button class="qr-btn" onclick="sendTaunt('哈哈你輸了 😂')" title="嘲諷">😂</button>
-    <button class="qr-btn" onclick="sendTaunt('好牌！🔥')" title="讚">🔥</button>
-    <button class="qr-btn" onclick="sendTaunt('快出牌啦！⏰')" title="催促">⏰</button>
-    <button class="qr-btn" onclick="sendTaunt('這牌也打？🤡')" title="嘲諷2">🤡</button>
-    <button class="qr-btn" onclick="sendTaunt('恭喜胡牌！🎉')" title="恭喜">🎉</button>
-    <button class="qr-btn" onclick="sendTaunt('我要胡了 😎')" title="警告">😎</button>
-    <button class="qr-btn" onclick="sendTaunt('手氣真差 💀')" title="自嘲">💀</button>
-    <button class="qr-btn" onclick="sendTaunt('再等等 🙏')" title="求等">🙏</button>
-    <button class="qr-btn" onclick="sendTaunt('走運了吧 😤')" title="不服">😤</button>
-    <button class="qr-btn" onclick="sendTaunt('妙啊！👏')" title="鼓掌">👏</button>
-  </div>
-
-  <div class="chat-input-row">
-    <input class="chat-inp" id="chat-inp" placeholder="輸入訊息..." maxlength="100"
-      onkeydown="if(event.key==='Enter')sendChat()">
-    <button class="chat-send" onclick="sendChat()">送出</button>
-  </div>
-</div>
-
-<!-- VOICE STATUS OVERLAY -->
-<div class="voice-overlay" id="voice-overlay">
-  <span>🎙️ 語音通話中</span>
-  <div class="voice-seats" id="voice-seats"></div>
-  <button onclick="toggleVoice()" style="padding:4px 10px;border-radius:6px;border:1.5px solid #f06060;color:#f06060;background:rgba(240,96,96,.1);font-size:11px;cursor:pointer">掛斷</button>
-</div>
-</body>
-</html>
