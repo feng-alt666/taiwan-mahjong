@@ -294,6 +294,184 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
 .hround-meth{color:rgba(255,255,255,.4);}
 .hround-amt{color:#40f08c;font-weight:700;margin-left:auto;}
 .hist-chips-info{font-size:11px;color:rgba(255,255,255,.35);margin-bottom:8px;}
+
+/* ═══════════════════════════════
+   CHAT + VOICE + TAUNT
+═══════════════════════════════ */
+
+/* Chat toggle button */
+.chat-toggle{
+  position:fixed;bottom:20px;right:16px;z-index:150;
+  width:48px;height:48px;border-radius:50%;
+  background:linear-gradient(135deg,#1a6b3a,#0f4424);
+  border:2px solid var(--gold);
+  color:var(--gold);font-size:20px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(0,0,0,.5);
+  transition:transform .2s;
+}
+.chat-toggle:hover{transform:scale(1.1);}
+.chat-toggle .badge{
+  position:absolute;top:-4px;right:-4px;
+  background:#e03030;color:#fff;
+  font-size:10px;font-weight:700;
+  width:18px;height:18px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;
+}
+.chat-toggle .badge.show{display:flex;}
+
+/* Chat panel */
+.chat-panel{
+  position:fixed;bottom:76px;right:16px;z-index:149;
+  width:300px;max-height:420px;
+  background:rgba(8,28,16,.97);
+  border:1.5px solid rgba(240,192,64,.3);
+  border-radius:16px;
+  display:flex;flex-direction:column;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+  transform:translateY(20px);opacity:0;pointer-events:none;
+  transition:transform .25s ease,opacity .25s ease;
+  overflow:hidden;
+}
+.chat-panel.open{transform:translateY(0);opacity:1;pointer-events:all;}
+
+.chat-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;
+  background:rgba(240,192,64,.08);
+  border-bottom:1px solid rgba(240,192,64,.15);
+  font-size:13px;font-weight:700;color:var(--gold);
+  flex-shrink:0;
+}
+.voice-btn{
+  padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;
+  font-family:'Noto Sans TC',sans-serif;cursor:pointer;
+  border:1.5px solid #40b4f0;color:#40b4f0;
+  background:rgba(64,180,240,.1);transition:all .2s;
+}
+.voice-btn.active{background:rgba(64,180,240,.25);animation:voicePulse 1.5s infinite;}
+.voice-btn.muted{border-color:#888;color:#888;background:rgba(100,100,100,.1);}
+@keyframes voicePulse{0%,100%{box-shadow:0 0 0 0 rgba(64,180,240,.5);}50%{box-shadow:0 0 0 6px rgba(64,180,240,0);}}
+
+.chat-msgs{
+  flex:1;overflow-y:auto;padding:10px 12px;
+  display:flex;flex-direction:column;gap:6px;
+  scrollbar-width:thin;scrollbar-color:rgba(240,192,64,.2) transparent;
+}
+.chat-msgs::-webkit-scrollbar{width:4px;}
+.chat-msgs::-webkit-scrollbar-track{background:transparent;}
+.chat-msgs::-webkit-scrollbar-thumb{background:rgba(240,192,64,.2);border-radius:2px;}
+
+.chat-msg{
+  display:flex;gap:7px;align-items:flex-start;
+  animation:msgIn .2s ease;
+}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.chat-msg.system{justify-content:center;}
+.chat-msg.system .msg-text{
+  font-size:10px;color:rgba(255,255,255,.35);
+  background:rgba(255,255,255,.05);
+  border-radius:8px;padding:3px 10px;
+}
+.chat-msg.mine{flex-direction:row-reverse;}
+.msg-avatar{font-size:18px;flex-shrink:0;margin-top:2px;}
+.msg-body{max-width:75%;}
+.msg-name{font-size:9px;color:rgba(255,255,255,.4);margin-bottom:2px;}
+.msg-text{
+  font-size:12px;line-height:1.5;
+  background:rgba(255,255,255,.08);
+  border-radius:10px;padding:6px 10px;
+  word-break:break-word;color:var(--lt);
+  display:inline-block;
+}
+.chat-msg.mine .msg-text{background:rgba(45,138,78,.35);}
+
+/* Taunt message special style */
+.chat-msg.taunt-msg .msg-text{
+  background:rgba(240,192,64,.15);
+  border:1px solid rgba(240,192,64,.25);
+  font-size:14px;
+}
+
+/* Quick reactions bar */
+.quick-reactions{
+  display:flex;gap:4px;padding:6px 10px;
+  border-top:1px solid rgba(255,255,255,.06);
+  flex-wrap:wrap;flex-shrink:0;
+}
+.qr-btn{
+  font-size:16px;cursor:pointer;padding:3px 6px;
+  border-radius:6px;border:none;background:transparent;
+  transition:transform .15s,background .15s;
+  line-height:1;
+}
+.qr-btn:hover{transform:scale(1.3);background:rgba(255,255,255,.08);}
+
+/* Chat input */
+.chat-input-row{
+  display:flex;gap:6px;padding:8px 10px;
+  border-top:1px solid rgba(255,255,255,.06);
+  flex-shrink:0;
+}
+.chat-inp{
+  flex:1;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:8px;padding:7px 10px;
+  font-size:12px;color:#fff;
+  font-family:'Noto Sans TC',sans-serif;outline:none;
+}
+.chat-inp:focus{border-color:rgba(240,192,64,.5);}
+.chat-inp::placeholder{color:rgba(255,255,255,.25);}
+.chat-send{
+  padding:7px 12px;background:rgba(240,192,64,.2);
+  border:1px solid rgba(240,192,64,.4);
+  border-radius:8px;color:var(--gold);font-size:13px;
+  cursor:pointer;transition:background .2s;flex-shrink:0;
+}
+.chat-send:hover{background:rgba(240,192,64,.35);}
+
+/* Voice indicators on player panels */
+.voice-indicator{
+  width:10px;height:10px;border-radius:50%;
+  background:#40b4f0;margin-left:4px;
+  display:none;
+  animation:voiceDot 1s infinite;
+}
+.voice-indicator.on{display:inline-block;}
+@keyframes voiceDot{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* Taunt float animation */
+.taunt-float{
+  position:fixed;font-size:28px;
+  pointer-events:none;z-index:400;
+  animation:tauntFloat 1.8s ease-out forwards;
+}
+@keyframes tauntFloat{
+  0%{opacity:1;transform:translateY(0) scale(1);}
+  60%{opacity:1;transform:translateY(-60px) scale(1.4);}
+  100%{opacity:0;transform:translateY(-100px) scale(.8);}
+}
+
+/* Voice overlay */
+.voice-overlay{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:rgba(8,28,16,.95);border:1.5px solid #40b4f0;
+  border-radius:14px;padding:12px 20px;z-index:160;
+  display:none;gap:12px;align-items:center;
+  box-shadow:0 4px 20px rgba(0,0,0,.5);
+  font-size:13px;color:rgba(255,255,255,.7);
+}
+.voice-overlay.show{display:flex;}
+.voice-seats{display:flex;gap:8px;}
+.voice-seat{
+  text-align:center;font-size:11px;
+  padding:4px 8px;border-radius:8px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(64,180,240,.2);
+}
+.voice-seat.speaking{border-color:#40b4f0;background:rgba(64,180,240,.12);}
+.voice-seat .vs-av{font-size:18px;}
+.voice-seat .vs-nm{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px;}
 </style>
 </head>
 <body>
@@ -1776,6 +1954,404 @@ renderCharGrid();
 connectWS();
 const urlR=new URLSearchParams(location.search).get('room');
 if(urlR){selMode('multi');goConnect();document.getElementById('icode').value=urlR.toUpperCase();}
+
+
+// ══════════════════════════════════════
+// CHAT SYSTEM
+// ══════════════════════════════════════
+let chatOpen = false;
+let unreadCount = 0;
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  const panel = document.getElementById('chat-panel');
+  panel.classList.toggle('open', chatOpen);
+  if (chatOpen) {
+    unreadCount = 0;
+    const badge = document.getElementById('chat-badge');
+    badge.classList.remove('show');
+    badge.textContent = '';
+    setTimeout(() => document.getElementById('chat-inp')?.focus(), 200);
+    scrollChatBottom();
+  }
+}
+
+function scrollChatBottom() {
+  const msgs = document.getElementById('chat-msgs');
+  if (msgs) msgs.scrollTop = msgs.scrollHeight;
+}
+
+function sendChat() {
+  const inp = document.getElementById('chat-inp');
+  const text = inp?.value?.trim();
+  if (!text) return;
+  if (MODE === 'multi') {
+    send2({ type: 'chat', text });
+  } else {
+    // AI mode: show own message
+    addChatMsg({ seat: C.mySeat || 0, name: C.myName, char: C.myChar, text, ts: Date.now() });
+    // AI responds with something funny sometimes
+    if (Math.random() < 0.4) {
+      const aiResponses = ['哈哈','不回應','😶','繼續打牌','你在說我嗎？','...',];
+      const p = AI.players[1 + Math.floor(Math.random() * 3)];
+      setTimeout(() => {
+        addChatMsg({ seat: 1, name: p?.name || 'AI', char: p?.char, text: aiResponses[Math.floor(Math.random() * aiResponses.length)], ts: Date.now() });
+      }, 800 + Math.random() * 1200);
+    }
+  }
+  inp.value = '';
+}
+
+function sendTaunt(taunt) {
+  if (MODE === 'multi') {
+    send2({ type: 'taunt', taunt });
+  } else {
+    addTauntMsg({ seat: C.mySeat || 0, name: C.myName, char: C.myChar, taunt });
+    spawnTauntFloat(taunt);
+  }
+}
+
+function addChatMsg(msg) {
+  const container = document.getElementById('chat-msgs');
+  if (!container) return;
+  const isMine = msg.seat === (C.mySeat || 0);
+  const div = document.createElement('div');
+  div.className = 'chat-msg' + (isMine ? ' mine' : '');
+  const time = new Date(msg.ts || Date.now()).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+  div.innerHTML = `
+    <div class="msg-avatar">${msg.char?.e || '👤'}</div>
+    <div class="msg-body">
+      ${!isMine ? `<div class="msg-name">${msg.name}</div>` : ''}
+      <div class="msg-text">${escapeHtml(msg.text)} <span style="font-size:9px;color:rgba(255,255,255,.25);margin-left:4px">${time}</span></div>
+    </div>`;
+  container.appendChild(div);
+  scrollChatBottom();
+  if (!chatOpen) {
+    unreadCount++;
+    const badge = document.getElementById('chat-badge');
+    badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+    badge.classList.add('show');
+  }
+}
+
+function addTauntMsg(msg) {
+  const container = document.getElementById('chat-msgs');
+  if (!container) return;
+  const isMine = msg.seat === (C.mySeat || 0);
+  const div = document.createElement('div');
+  div.className = 'chat-msg taunt-msg' + (isMine ? ' mine' : '');
+  div.innerHTML = `
+    <div class="msg-avatar">${msg.char?.e || '👤'}</div>
+    <div class="msg-body">
+      ${!isMine ? `<div class="msg-name">${msg.name}</div>` : ''}
+      <div class="msg-text">${escapeHtml(msg.taunt)}</div>
+    </div>`;
+  container.appendChild(div);
+  scrollChatBottom();
+  if (!chatOpen) {
+    unreadCount++;
+    const badge = document.getElementById('chat-badge');
+    badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+    badge.classList.add('show');
+  }
+}
+
+function addSystemMsg(text) {
+  const container = document.getElementById('chat-msgs');
+  if (!container) return;
+  const div = document.createElement('div');
+  div.className = 'chat-msg system';
+  div.innerHTML = `<div class="msg-text">${text}</div>`;
+  container.appendChild(div);
+  scrollChatBottom();
+}
+
+function spawnTauntFloat(text) {
+  const el = document.createElement('div');
+  el.className = 'taunt-float';
+  el.textContent = text;
+  el.style.left = (20 + Math.random() * 60) + '%';
+  el.style.bottom = '80px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1900);
+}
+
+function escapeHtml(t) {
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Show chat button when game starts
+function showChatBtn() {
+  const btn = document.getElementById('chat-toggle');
+  if (btn) btn.style.display = 'flex';
+}
+
+// ══════════════════════════════════════
+// VOICE CALL (WebRTC)
+// ══════════════════════════════════════
+let localStream = null;
+let peerConnections = {}; // seatIdx -> RTCPeerConnection
+let voiceActive = false;
+let voiceSeats = new Set(); // who's in voice
+
+const RTC_CONFIG = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+  ]
+};
+
+async function toggleVoice() {
+  if (voiceActive) {
+    leaveVoice();
+  } else {
+    await joinVoice();
+  }
+}
+
+async function joinVoice() {
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+  } catch (e) {
+    toast('❌ 無法取得麥克風：' + e.message);
+    return;
+  }
+  voiceActive = true;
+  voiceSeats.add(C.mySeat);
+  updateVoiceUI();
+  addSystemMsg('🎙️ 你加入語音通話');
+  if (MODE === 'multi') {
+    send2({ type: 'rtc-join' });
+  }
+  const btn = document.getElementById('voice-btn');
+  if (btn) { btn.textContent = '🔇 靜音'; btn.classList.add('active'); }
+}
+
+function leaveVoice() {
+  if (localStream) {
+    localStream.getTracks().forEach(t => t.stop());
+    localStream = null;
+  }
+  Object.values(peerConnections).forEach(pc => pc.close());
+  peerConnections = {};
+  voiceActive = false;
+  voiceSeats.delete(C.mySeat);
+  updateVoiceUI();
+  addSystemMsg('🔇 你離開語音通話');
+  if (MODE === 'multi') send2({ type: 'rtc-leave' });
+  const btn = document.getElementById('voice-btn');
+  if (btn) { btn.textContent = '🎙️ 語音'; btn.classList.remove('active'); }
+}
+
+async function createPeerConnection(remoteSeat) {
+  const pc = new RTCPeerConnection(RTC_CONFIG);
+  peerConnections[remoteSeat] = pc;
+
+  if (localStream) {
+    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+  }
+
+  pc.ontrack = (e) => {
+    const audio = new Audio();
+    audio.srcObject = e.streams[0];
+    audio.autoplay = true;
+    document.body.appendChild(audio);
+  };
+
+  pc.onicecandidate = (e) => {
+    if (e.candidate) {
+      send2({ type: 'rtc-ice', to: remoteSeat, candidate: e.candidate });
+    }
+  };
+
+  return pc;
+}
+
+async function handleRtcJoin(fromSeat) {
+  if (!voiceActive || fromSeat === C.mySeat) return;
+  voiceSeats.add(fromSeat);
+  updateVoiceUI();
+  // We initiate offer to the new joiner
+  const pc = await createPeerConnection(fromSeat);
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  send2({ type: 'rtc-offer', to: fromSeat, sdp: offer });
+}
+
+async function handleRtcOffer(fromSeat, sdp) {
+  if (!voiceActive) return;
+  const pc = await createPeerConnection(fromSeat);
+  await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  send2({ type: 'rtc-answer', to: fromSeat, sdp: answer });
+}
+
+async function handleRtcAnswer(fromSeat, sdp) {
+  const pc = peerConnections[fromSeat];
+  if (pc) await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+}
+
+async function handleRtcIce(fromSeat, candidate) {
+  const pc = peerConnections[fromSeat];
+  if (pc) await pc.addIceCandidate(new RTCIceCandidate(candidate));
+}
+
+function handleRtcLeave(fromSeat) {
+  const pc = peerConnections[fromSeat];
+  if (pc) { pc.close(); delete peerConnections[fromSeat]; }
+  voiceSeats.delete(fromSeat);
+  updateVoiceUI();
+}
+
+function updateVoiceUI() {
+  const overlay = document.getElementById('voice-overlay');
+  const seatsEl = document.getElementById('voice-seats');
+  if (!overlay || !seatsEl) return;
+  if (voiceSeats.size === 0) {
+    overlay.classList.remove('show');
+    return;
+  }
+  overlay.classList.add('show');
+  seatsEl.innerHTML = '';
+  const players = MODE === 'ai' ? AI.players : (GS?.players || []);
+  voiceSeats.forEach(seat => {
+    const p = players[seat];
+    if (!p) return;
+    const div = document.createElement('div');
+    div.className = 'voice-seat' + (seat === C.mySeat ? ' speaking' : '');
+    div.innerHTML = `<div class="vs-av">${p.char?.e || '👤'}</div><div class="vs-nm">${p.name}</div>`;
+    seatsEl.appendChild(div);
+  });
+}
+
+// ══════════════════════════════════════
+// HANDLE INCOMING MULTI MESSAGES (extend existing hMsg)
+// ══════════════════════════════════════
+const _origHMsg = typeof hMsg === 'function' ? hMsg : null;
+// Patch the message handler to also handle chat/taunt/rtc
+const _hMsgPatch = function(msg) {
+  switch(msg.type) {
+    case 'chat':
+      addChatMsg(msg);
+      // Show toast for chat when panel is closed
+      if (!chatOpen) toast(`${msg.char?.e || '💬'} ${msg.name}: ${msg.text.substring(0, 30)}`);
+      break;
+    case 'taunt':
+      addTauntMsg(msg);
+      spawnTauntFloat(msg.taunt);
+      if (!chatOpen) toast(`${msg.char?.e || '😂'} ${msg.name}: ${msg.taunt}`);
+      break;
+    case 'rtc-join':
+      if (msg.seat !== C.mySeat) {
+        voiceSeats.add(msg.seat);
+        updateVoiceUI();
+        addSystemMsg(`🎙️ ${msg.name} 加入語音`);
+        if (voiceActive) handleRtcJoin(msg.seat);
+      }
+      break;
+    case 'rtc-leave':
+      voiceSeats.delete(msg.seat);
+      updateVoiceUI();
+      const leaveName = GS?.players[msg.seat]?.name || '';
+      if (leaveName) addSystemMsg(`🔇 ${leaveName} 離開語音`);
+      handleRtcLeave(msg.seat);
+      break;
+    case 'rtc-offer':
+      handleRtcOffer(msg.from, msg.sdp);
+      break;
+    case 'rtc-answer':
+      handleRtcAnswer(msg.from, msg.sdp);
+      break;
+    case 'rtc-ice':
+      handleRtcIce(msg.from, msg.candidate);
+      break;
+    default:
+      if (_origHMsg) _origHMsg(msg);
+      break;
+  }
+};
+
+// Override ws message handler after ws is connected
+const _origConnectWS = connectWS;
+// Re-wire after page load
+window.addEventListener('load', () => {
+  // Patch ws.onmessage after connection established
+  const checkWs = setInterval(() => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      clearInterval(checkWs);
+      const origOnMsg = ws.onmessage;
+      ws.onmessage = (ev) => {
+        try {
+          const msg = JSON.parse(ev.data);
+          // Try patch first
+          if (['chat','taunt','rtc-join','rtc-leave','rtc-offer','rtc-answer','rtc-ice'].includes(msg.type)) {
+            _hMsgPatch(msg);
+          } else {
+            origOnMsg(ev);
+          }
+        } catch(e) { console.error(e); }
+      };
+    }
+  }, 500);
+});
+
+// Show chat button when game screen is shown
+const _origShow = show;
+window.show = function(id) {
+  _origShow(id);
+  if (id === 's-game') showChatBtn();
+  else {
+    const btn = document.getElementById('chat-toggle');
+    if (btn) btn.style.display = 'none';
+    if (chatOpen) toggleChat();
+  }
+};
 </script>
+
+<!-- CHAT TOGGLE -->
+<button class="chat-toggle" id="chat-toggle" onclick="toggleChat()" style="display:none">
+  💬
+  <div class="badge" id="chat-badge"></div>
+</button>
+
+<!-- CHAT PANEL -->
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-header">
+    <span>💬 聊天室</span>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button class="voice-btn" id="voice-btn" onclick="toggleVoice()">🎙️ 語音</button>
+      <button style="background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:16px;padding:0 2px" onclick="toggleChat()">✕</button>
+    </div>
+  </div>
+  <div class="chat-msgs" id="chat-msgs"></div>
+
+  <!-- Quick reactions / taunts -->
+  <div class="quick-reactions">
+    <button class="qr-btn" onclick="sendTaunt('哈哈你輸了 😂')" title="嘲諷">😂</button>
+    <button class="qr-btn" onclick="sendTaunt('好牌！🔥')" title="讚">🔥</button>
+    <button class="qr-btn" onclick="sendTaunt('快出牌啦！⏰')" title="催促">⏰</button>
+    <button class="qr-btn" onclick="sendTaunt('這牌也打？🤡')" title="嘲諷2">🤡</button>
+    <button class="qr-btn" onclick="sendTaunt('恭喜胡牌！🎉')" title="恭喜">🎉</button>
+    <button class="qr-btn" onclick="sendTaunt('我要胡了 😎')" title="警告">😎</button>
+    <button class="qr-btn" onclick="sendTaunt('手氣真差 💀')" title="自嘲">💀</button>
+    <button class="qr-btn" onclick="sendTaunt('再等等 🙏')" title="求等">🙏</button>
+    <button class="qr-btn" onclick="sendTaunt('走運了吧 😤')" title="不服">😤</button>
+    <button class="qr-btn" onclick="sendTaunt('妙啊！👏')" title="鼓掌">👏</button>
+  </div>
+
+  <div class="chat-input-row">
+    <input class="chat-inp" id="chat-inp" placeholder="輸入訊息..." maxlength="100"
+      onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">送出</button>
+  </div>
+</div>
+
+<!-- VOICE STATUS OVERLAY -->
+<div class="voice-overlay" id="voice-overlay">
+  <span>🎙️ 語音通話中</span>
+  <div class="voice-seats" id="voice-seats"></div>
+  <button onclick="toggleVoice()" style="padding:4px 10px;border-radius:6px;border:1.5px solid #f06060;color:#f06060;background:rgba(240,96,96,.1);font-size:11px;cursor:pointer">掛斷</button>
+</div>
 </body>
 </html>

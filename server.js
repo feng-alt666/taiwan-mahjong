@@ -844,6 +844,64 @@ wss.on('connection', (ws) => {
         clientRoom.broadcastAll({ type: 'hurry', fromName: fromPlayer.name, targetName: targetPlayer.name });
         break;
       }
+      // ── Chat ──
+      case 'chat': {
+        if (!clientRoom) return;
+        const p = clientRoom.players[clientSeat];
+        if (!p) return;
+        const text = String(msg.text || '').substring(0, 200).trim();
+        if (!text) return;
+        clientRoom.broadcastAll({
+          type: 'chat',
+          seat: clientSeat,
+          name: p.name,
+          char: p.char,
+          text,
+          ts: Date.now(),
+        });
+        break;
+      }
+      // ── Taunt / Quick reaction ──
+      case 'taunt': {
+        if (!clientRoom) return;
+        const p = clientRoom.players[clientSeat];
+        if (!p) return;
+        const TAUNTS = ['😂','😤','🤣','😱','🥶','🔥','💀','👏','🤡','😎'];
+        const taunt = String(msg.taunt || '').substring(0, 50);
+        clientRoom.broadcastAll({
+          type: 'taunt',
+          seat: clientSeat,
+          name: p.name,
+          char: p.char,
+          taunt,
+          ts: Date.now(),
+        });
+        break;
+      }
+      // ── WebRTC signaling (for voice call) ──
+      case 'rtc-offer':
+      case 'rtc-answer':
+      case 'rtc-ice': {
+        if (!clientRoom) return;
+        // Forward to target seat
+        const targetClient = clientRoom.clients.find(c => c.seatIdx === msg.to);
+        if (targetClient) {
+          clientRoom.send(targetClient.ws, { ...msg, from: clientSeat });
+        }
+        break;
+      }
+      case 'rtc-join': {
+        // Broadcast that this player wants to join voice
+        if (!clientRoom) return;
+        const p = clientRoom.players[clientSeat];
+        clientRoom.broadcastAll({ type: 'rtc-join', seat: clientSeat, name: p?.name });
+        break;
+      }
+      case 'rtc-leave': {
+        if (!clientRoom) return;
+        clientRoom.broadcastAll({ type: 'rtc-leave', seat: clientSeat });
+        break;
+      }
     }
   });
 
