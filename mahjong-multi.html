@@ -1,8 +1,12 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f4424">
 <title>台灣麻將</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&family=Fredoka+One&display=swap');
@@ -472,6 +476,185 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
 .voice-seat.speaking{border-color:#40b4f0;background:rgba(64,180,240,.12);}
 .voice-seat .vs-av{font-size:18px;}
 .voice-seat .vs-nm{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px;}
+
+/* ═══════════════ MOBILE RESPONSIVE ═══════════════ */
+* { -webkit-tap-highlight-color: transparent; }
+body { -webkit-overflow-scrolling: touch; }
+
+/* Mobile: stack layout vertically */
+@media (max-width: 600px) {
+  .gl { padding: 4px; gap: 3px; }
+  .orow { grid-template-columns: 1fr 1fr 1fr; gap: 3px; }
+  .pp { padding: 5px 6px; border-radius: 8px; }
+  .pav { font-size: 16px; }
+  .pnm { font-size: 10px; }
+  .pch { font-size: 9px; }
+  .brow .tbk { width: 10px; height: 14px; }
+  .tablec { min-height: 90px; padding: 6px 8px; }
+  .dp { min-height: 80px; }
+  .tile.lg { width: 38px; height: 54px; }
+  .tile.md { width: 28px; height: 40px; }
+  .tile.sm { width: 20px; height: 28px; }
+  .tile.lg .wan-n { font-size: 17px; }
+  .tile.lg .wan-w { font-size: 10px; }
+  .tile.lg .honor-inner span { font-size: 22px; }
+  .acts { gap: 4px; }
+  .ab { padding: 7px 10px; font-size: 12px; }
+  .chat-panel { width: calc(100vw - 32px); right: 8px; bottom: 68px; }
+  .chat-toggle { bottom: 14px; right: 10px; width: 42px; height: 42px; font-size: 18px; }
+  .yt-panel { width: calc(100vw - 24px); right: 12px; bottom: 68px; }
+  .yt-toggle { bottom: 14px; right: 60px; }
+  .voice-overlay { width: calc(100vw - 32px); }
+  .topbar { padding: 5px 8px; font-size: 11px; }
+  .ri { font-size: 11px; }
+  .ts { gap: 6px; font-size: 11px; }
+}
+
+/* iOS safe area */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .gl { padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
+  .chat-toggle { bottom: calc(20px + env(safe-area-inset-bottom)); }
+  .yt-toggle { bottom: calc(20px + env(safe-area-inset-bottom)); }
+}
+
+/* Touch: larger tap targets */
+@media (hover: none) and (pointer: coarse) {
+  .ab { min-height: 40px; min-width: 44px; }
+  .tile.lg { width: 44px; height: 62px; }
+  .qr-btn { font-size: 20px; padding: 6px 8px; }
+}
+
+/* ═══════════════ YOUTUBE PANEL ═══════════════ */
+.yt-toggle {
+  position: fixed; bottom: 20px; right: 68px; z-index: 150;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, #c4302b, #8b0000);
+  border: 2px solid #ff6b6b;
+  color: #fff; font-size: 18px; cursor: pointer;
+  display: none; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,.5);
+  transition: transform .2s;
+}
+.yt-toggle:hover { transform: scale(1.1); }
+
+.yt-panel {
+  position: fixed; bottom: 72px; right: 16px; z-index: 148;
+  width: 320px;
+  background: rgba(8,8,20,.97);
+  border: 1.5px solid rgba(255,80,80,.35);
+  border-radius: 16px;
+  display: flex; flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0,0,0,.7);
+  transform: translateY(20px); opacity: 0; pointer-events: none;
+  transition: transform .25s ease, opacity .25s ease;
+  overflow: hidden;
+}
+.yt-panel.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+
+.yt-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(196,48,43,.15);
+  border-bottom: 1px solid rgba(255,80,80,.15);
+  font-size: 13px; font-weight: 700; color: #ff8080;
+  flex-shrink: 0;
+}
+.yt-search-row {
+  display: flex; gap: 6px; padding: 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  flex-shrink: 0;
+}
+.yt-inp {
+  flex: 1; background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 8px; padding: 7px 10px;
+  font-size: 12px; color: #fff;
+  font-family: 'Noto Sans TC', sans-serif; outline: none;
+}
+.yt-inp:focus { border-color: rgba(255,80,80,.5); }
+.yt-inp::placeholder { color: rgba(255,255,255,.25); }
+.yt-btn {
+  padding: 7px 12px; background: rgba(196,48,43,.3);
+  border: 1px solid rgba(255,80,80,.4);
+  border-radius: 8px; color: #ff8080; font-size: 12px;
+  cursor: pointer; transition: background .2s; flex-shrink: 0;
+}
+.yt-btn:hover { background: rgba(196,48,43,.5); }
+.yt-iframe-wrap {
+  position: relative; padding-bottom: 56.25%; height: 0;
+  flex-shrink: 0;
+}
+.yt-iframe-wrap iframe {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  border: none;
+}
+.yt-preset-label {
+  font-size: 10px; color: rgba(255,255,255,.3);
+  padding: 6px 10px 2px; flex-shrink: 0;
+}
+.yt-presets {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  padding: 4px 10px 10px; flex-shrink: 0;
+}
+.yt-preset {
+  font-size: 10px; padding: 3px 8px;
+  background: rgba(255,255,255,.06);
+  border: 0.5px solid rgba(255,255,255,.12);
+  border-radius: 12px; color: rgba(255,255,255,.6);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.yt-preset:hover { background: rgba(196,48,43,.3); color: #ff8080; border-color: rgba(255,80,80,.3); }
+
+/* ═══════════════ VOICE CALL IMPROVED ═══════════════ */
+.voice-status-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 10px;
+  background: rgba(64,180,240,.08);
+  border-top: 1px solid rgba(64,180,240,.15);
+  font-size: 11px; color: rgba(64,180,240,.8);
+  flex-shrink: 0;
+}
+.voice-dot { width: 6px; height: 6px; border-radius: 50%; background: #40b4f0; animation: voiceDot 1s infinite; }
+
+/* ═══════════════ WIND DRAW SCREEN ═══════════════ */
+#s-wind {
+  background: radial-gradient(ellipse at 50% 30%, #3a1060, #1a0830 50%, #0a0518);
+  justify-content: center; align-items: center; padding: 30px 20px; text-align: center;
+}
+.wind-box { max-width: 480px; width: 100%; }
+.wind-box h2 { font-family: 'Fredoka One', cursive; font-size: 28px; color: var(--gold); margin-bottom: 6px; }
+.wind-box p { font-size: 13px; color: rgba(255,255,255,.45); margin-bottom: 24px; }
+.wind-cards-row {
+  display: flex; justify-content: center; gap: 12px; margin-bottom: 28px;
+}
+.wind-card {
+  width: 64px; height: 90px;
+  background: linear-gradient(160deg, #fdf5e0, #f5e8c0);
+  border: 2px solid #c8a060; border-radius: 8px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,.4);
+  cursor: pointer; transition: transform .2s, box-shadow .2s;
+  font-family: 'Noto Serif TC', serif; font-weight: 900;
+}
+.wind-card:hover { transform: translateY(-6px) rotate(2deg); box-shadow: 0 8px 20px rgba(0,0,0,.5); }
+.wind-card.face-down { background: linear-gradient(135deg, #2a5070, #1a3050); border-color: rgba(255,255,255,.2); cursor: default; }
+.wind-card.face-down:hover { transform: none; box-shadow: 0 4px 12px rgba(0,0,0,.4); }
+.wind-card.flipping { animation: cardFlip .5s ease; }
+.wind-card .wc-char { font-size: 28px; }
+.wind-card .wc-label { font-size: 10px; color: rgba(0,0,0,.5); margin-top: 2px; }
+@keyframes cardFlip {
+  0% { transform: rotateY(0); }
+  50% { transform: rotateY(90deg); }
+  100% { transform: rotateY(0); }
+}
+.wind-result {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(240,192,64,.25);
+  border-radius: 14px; padding: 16px;
+  font-size: 14px; line-height: 2.2;
+  color: rgba(255,255,255,.8); display: none;
+}
+.wind-result strong { color: var(--gold); }
 </style>
 </head>
 <body>
@@ -546,7 +729,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
 <div id="s-dice" class="screen">
   <div class="db">
     <h2>🎲 骰骰子決定莊家</h2>
-    <p style="color:rgba(255,255,255,.4);font-size:13px;margin-bottom:4px" id="dsub">擲骰中...</p>
+    <p style="color:rgba(255,255,255,.4);font-size:13px;margin-bottom:4px" id="dsub">莊家擲骰決定發牌方向</p>
+    <div id="dice-host-btns" style="display:none;margin-bottom:16px">
+      <button class="btn-gold" onclick="hostRollDice()" style="max-width:200px;font-size:15px;padding:12px">🎲 擲骰子！</button>
+    </div>
     <div class="dr"><div class="die" id="d1">⚄</div><div class="die" id="d2">⚂</div><div class="die" id="d3">⚁</div></div>
     <div class="dres" id="dres" style="display:none"></div>
   </div>
@@ -743,75 +929,94 @@ function tl(t){if(t.flower!=null)return FL[t.flower];if(t.honor!=null)return HN[
 function srt(h){return[...h].sort((a,b)=>{if(a.honor!=null&&b.honor!=null)return a.honor-b.honor;if(a.honor!=null)return 1;if(b.honor!=null)return-1;if(a.suit!==b.suit)return a.suit-b.suit;return a.num-b.num;});}
 function isF(t){return t.flower!=null;}
 
-// 索子 SVG - 超擬真竹子，每根竹子有竹節、竹皮、光澤
+// 索子 SVG - 仿真實麻將竹節造型 (參照雀依牌型圖)
+// 每根竹子: 細長圓柱，有頂部圓弧，竹節分段，5索中間一根是紅色
 function suoSVG(n,sz){
   const lg=sz==='lg',md=sz==='md';
-  const W=lg?40:md?30:20,H=lg?58:md?44:30;
-  
-  // 每個數字對應的竹子排列 [col, row] (0-indexed)
-  const LAYOUTS={
-    1:[[0.5,0.5]],
-    2:[[0.5,0.25],[0.5,0.75]],
-    3:[[0.5,0.18],[0.5,0.5],[0.5,0.82]],
-    4:[[0.28,0.28],[0.72,0.28],[0.28,0.72],[0.72,0.72]],
-    5:[[0.28,0.2],[0.72,0.2],[0.5,0.5],[0.28,0.8],[0.72,0.8]],
-    6:[[0.28,0.18],[0.72,0.18],[0.28,0.5],[0.72,0.5],[0.28,0.82],[0.72,0.82]],
-    7:[[0.2,0.15],[0.5,0.15],[0.8,0.15],[0.2,0.5],[0.8,0.5],[0.2,0.85],[0.5,0.85],[0.8,0.85]].slice(0,7),
-    8:[[0.2,0.15],[0.5,0.15],[0.8,0.15],[0.2,0.5],[0.8,0.5],[0.2,0.85],[0.5,0.85],[0.8,0.85]],
-    9:[[0.2,0.17],[0.5,0.17],[0.8,0.17],[0.2,0.5],[0.5,0.5],[0.8,0.5],[0.2,0.83],[0.5,0.83],[0.8,0.83]],
+  const W=lg?42:md?30:20, H=lg?60:md?45:30;
+
+  // 各數字的竹子排列 (以格子位置表示，最多3列)
+  // 格式: [col(0-2), row(0-2)] 其中col最多3格，row最多3格
+  const COLS_ROWS = {
+    1: {cols:1, rows:1, pts:[[1,1]]},
+    2: {cols:1, rows:2, pts:[[1,1],[1,2]]},
+    3: {cols:1, rows:3, pts:[[1,1],[1,2],[1,3]]},
+    4: {cols:2, rows:2, pts:[[1,1],[2,1],[1,2],[2,2]]},
+    5: {cols:2, rows:3, pts:[[1,1],[2,1],[1,2],[2,2],[1,3]]}, // 5th (middle-ish) is red
+    6: {cols:2, rows:3, pts:[[1,1],[2,1],[1,2],[2,2],[1,3],[2,3]]},
+    7: {cols:3, rows:3, pts:[[1,1],[2,1],[3,1],[1,2],[2,2],[3,2],[1,3]]},
+    8: {cols:3, rows:3, pts:[[1,1],[2,1],[3,1],[1,2],[2,2],[3,2],[1,3],[2,3]]},
+    9: {cols:3, rows:3, pts:[[1,1],[2,1],[3,1],[1,2],[2,2],[3,2],[1,3],[2,3],[3,3]]},
   };
-  
-  const pts=LAYOUTS[n]||[[0.5,0.5]];
-  // bamboo size scales with tile size and count
-  const bw=n<=4?(lg?10:md?7.5:5):(n<=6?(lg?8.5:md?6.5:4.5):(lg?7:md?5.5:3.8));
-  const bh=n<=2?(lg?24:md?18:12):(n<=4?(lg?20:md?15:10):(n<=6?(lg?16:md?12:8):(lg?13:md?10:7)));
-  
-  let d='';
-  // defs for gradient
-  d+=`<defs>
-    <linearGradient id="bg${n}${sz}" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#0d5c0d"/>
-      <stop offset="35%" stop-color="#1a8a1a"/>
-      <stop offset="65%" stop-color="#2ab82a"/>
-      <stop offset="100%" stop-color="#0d5c0d"/>
-    </linearGradient>
-  </defs>`;
-  
-  pts.forEach(([fx,fy],i)=>{
-    const cx=fx*W, cy=fy*H;
-    const x0=cx-bw/2, y0=cy-bh/2;
-    const isRed = n===5 && i===2; // center of 5-suo is red
-    const darkG = isRed ? '#7a0000' : '#0d5c0d';
-    const midG  = isRed ? '#cc2222' : '#1a8a1a';
-    const lightG= isRed ? '#ff8888' : '#5acc5a';
-    const nodeC = isRed ? '#ff4444' : '#c8f0a0';
-    
-    // Main bamboo body (bottom half)
-    d+=`<rect x="${x0}" y="${y0}" width="${bw}" height="${bh*0.52}" rx="${bw*0.18}" fill="${darkG}"/>`;
-    // Lighter inner body bottom
-    d+=`<rect x="${x0+bw*0.15}" y="${y0+1}" width="${bw*0.35}" height="${bh*0.44}" rx="${bw*0.1}" fill="${midG}" opacity="0.7"/>`;
-    // Node / joint
-    d+=`<rect x="${x0-bw*0.1}" y="${cy-bh*0.06}" width="${bw*1.2}" height="${bh*0.12}" rx="${bw*0.08}" fill="${nodeC}" opacity="0.9"/>`;
-    // Darker stripe on node
-    d+=`<rect x="${x0}" y="${cy-bh*0.04}" width="${bw}" height="${bh*0.08}" rx="${bw*0.05}" fill="${darkG}" opacity="0.4"/>`;
-    // Main bamboo body (top half)
-    d+=`<rect x="${x0}" y="${cy+bh*0.06}" width="${bw}" height="${bh*0.44}" rx="${bw*0.18}" fill="${midG}"/>`;
-    // Lighter inner body top
-    d+=`<rect x="${x0+bw*0.15}" y="${cy+bh*0.08}" width="${bw*0.35}" height="${bh*0.36}" rx="${bw*0.1}" fill="${lightG}" opacity="0.5"/>`;
-    // Highlight stripe (left edge shine)
-    d+=`<rect x="${x0+bw*0.1}" y="${y0+1}" width="${bw*0.12}" height="${bh*0.44}" rx="${bw*0.06}" fill="rgba(255,255,255,0.35)"/>`;
-    d+=`<rect x="${x0+bw*0.1}" y="${cy+bh*0.08}" width="${bw*0.12}" height="${bh*0.36}" rx="${bw*0.06}" fill="rgba(255,255,255,0.25)"/>`;
-  });
-  
-  // 1-索: special bird decoration on top
-  if(n===1){
-    const cx=W/2,cy=H*0.15;
-    d+=`<ellipse cx="${cx}" cy="${cy}" rx="${bw*0.7}" ry="${bh*0.18}" fill="#cc6600"/>`;
-    d+=`<ellipse cx="${cx+bw*0.2}" cy="${cy}" rx="${bw*0.45}" ry="${bh*0.13}" fill="#ff9900"/>`;
-    d+=`<circle cx="${cx+bw*0.55}" cy="${cy-bh*0.05}" r="${bw*0.15}" fill="#111"/>`;
+
+  const cfg = COLS_ROWS[n] || COLS_ROWS[1];
+  const { cols, rows, pts } = cfg;
+
+  // bamboo dimensions - thinner for more tiles
+  const bw = cols===1?(lg?10:md?8:5):(cols===2?(lg?8:md?6:4):(lg?7:md?5:3.2));
+  const bh = rows===1?(lg?36:md?27:18):(rows===2?(lg?20:md?15:10):(lg?14:md?10.5:7));
+
+  // cell size
+  const cellW = W / (cols + 1);
+  const cellH = H / (rows + 1);
+
+  let d = '';
+
+  // Draw one bamboo stalk as path with rounded top and flat bottom, with joint
+  function drawStalk(cx, cy, isRed) {
+    const x0 = cx - bw/2;
+    const y0 = cy - bh/2;
+    const dark  = isRed ? '#8b0000' : '#1a5c1a';
+    const mid   = isRed ? '#cc1111' : '#2d8a2d';
+    const light = isRed ? '#ff6666' : '#4ac44a';
+    const hilit = isRed ? 'rgba(255,200,200,0.4)' : 'rgba(180,255,180,0.4)';
+    const joint = isRed ? '#ffaaaa' : '#b8e8b8';
+
+    const r = bw * 0.42; // corner radius for rounded stalk
+
+    // Shadow/outline for depth
+    d += `<rect x="${x0+0.5}" y="${y0+1}" width="${bw}" height="${bh}" rx="${r}" fill="rgba(0,0,0,0.25)"/>`;
+
+    // Main body - dark outer
+    d += `<rect x="${x0}" y="${y0}" width="${bw}" height="${bh}" rx="${r}" fill="${dark}"/>`;
+
+    // Inner highlight body
+    d += `<rect x="${x0+bw*0.15}" y="${y0}" width="${bw*0.7}" height="${bh}" rx="${r*0.7}" fill="${mid}"/>`;
+
+    // Joint band at center
+    const jy = cy - bh*0.05;
+    d += `<rect x="${x0-1}" y="${jy}" width="${bw+2}" height="${bh*0.12}" rx="${bw*0.1}" fill="${joint}"/>`;
+    d += `<rect x="${x0}" y="${jy+bh*0.02}" width="${bw}" height="${bh*0.08}" rx="${bw*0.08}" fill="${dark}" opacity="0.3"/>`;
+
+    // Left highlight stripe
+    d += `<rect x="${x0+bw*0.12}" y="${y0+2}" width="${bw*0.14}" height="${bh*0.45}" rx="${bw*0.07}" fill="${hilit}"/>`;
+    d += `<rect x="${x0+bw*0.12}" y="${cy+bh*0.1}" width="${bw*0.14}" height="${bh*0.35}" rx="${bw*0.07}" fill="${hilit}"/>`;
+
+    // Top cap (rounded dome)
+    d += `<ellipse cx="${cx}" cy="${y0+bw*0.3}" rx="${bw*0.48}" ry="${bw*0.3}" fill="${light}" opacity="0.6"/>`;
   }
-  
-  return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${d}</svg>`;
+
+  pts.forEach(([col, row], i) => {
+    const cx = cellW * col;
+    const cy = cellH * row;
+    // For n=5: the 5th bamboo (index 4) is red; for others: all green
+    const isRed = (n === 5 && i === 4);
+    drawStalk(cx, cy, isRed);
+  });
+
+  // 1-索: special bird/sparrow on top of the single stalk
+  if (n === 1) {
+    const cx = W/2;
+    const stalktop = cellH*1 - (lg?18:md?13.5:9);
+    // bird body
+    d += `<ellipse cx="${cx+bw*0.15}" cy="${stalktop-bw*0.6}" rx="${bw*0.55}" ry="${bw*0.35}" fill="#cc6600"/>`;
+    d += `<ellipse cx="${cx+bw*0.45}" cy="${stalktop-bw*0.7}" rx="${bw*0.3}" ry="${bw*0.22}" fill="#ff9900"/>`;
+    d += `<circle cx="${cx+bw*0.68}" cy="${stalktop-bw*0.82}" r="${bw*0.14}" fill="#111"/>`;
+    // beak
+    d += `<polygon points="${cx+bw*0.85},${stalktop-bw*0.7} ${cx+bw*1.1},${stalktop-bw*0.75} ${cx+bw*0.85},${stalktop-bw*0.8}" fill="#ffcc00"/>`;
+  }
+
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${d}</svg>`;
 }
 
 // 筒子 SVG
@@ -2307,7 +2512,324 @@ window.show = function(id) {
     if (chatOpen) toggleChat();
   }
 };
+
+
+// ══════════════════════════════════════
+// YOUTUBE BACKGROUND MUSIC
+// ══════════════════════════════════════
+let ytOpen = false;
+
+function toggleYT() {
+  ytOpen = !ytOpen;
+  document.getElementById('yt-panel').classList.toggle('open', ytOpen);
+}
+
+function extractYTId(input) {
+  input = input.trim();
+  // Full URL patterns
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/,
+  ];
+  for (const p of patterns) {
+    const m = input.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function loadYT() {
+  const inp = document.getElementById('yt-inp');
+  const val = inp?.value?.trim();
+  if (!val) return;
+  const id = extractYTId(val);
+  if (id) {
+    playYTId(id);
+  } else {
+    // Open YouTube search in new tab
+    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(val)}`, '_blank');
+    toast('已開啟 YouTube 搜尋，複製影片連結貼回來播放');
+  }
+}
+
+function playYTId(id) {
+  const frame = document.getElementById('yt-frame');
+  if (frame) {
+    frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+    if (!ytOpen) toggleYT();
+  }
+}
+
+function showYTBtn() {
+  const btn = document.getElementById('yt-toggle');
+  if (btn) btn.style.display = 'flex';
+}
+
+// Show YT button when game starts
+const _origShowYT = window.show;
+if (typeof window.show === 'function') {
+  window.show = function(id) {
+    _origShowYT(id);
+    if (id === 's-game') { showYTBtn(); showChatBtn && showChatBtn(); }
+    else {
+      const yt = document.getElementById('yt-toggle');
+      if (yt) yt.style.display = 'none';
+      if (ytOpen) toggleYT();
+    }
+  };
+}
+
+// ══════════════════════════════════════
+// VOICE CALL - FIXED VERSION
+// Uses WebRTC with better error handling
+// Requires HTTPS (Railway provides this)
+// ══════════════════════════════════════
+let _voiceLocalStream = null;
+let _voicePeers = {}; // seat -> RTCPeerConnection
+let _voiceActive = false;
+let _voiceSeats = new Set();
+let _voiceMuted = false;
+
+async function startVoiceCall() {
+  const btn = document.getElementById('voice-btn');
+  if (_voiceActive) {
+    stopVoiceCall();
+    return;
+  }
+  // Check HTTPS
+  if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+    addSystemMsg('❌ 語音通話需要 HTTPS 連線（Railway 已支援）');
+    toast('❌ 需要 HTTPS 才能使用麥克風');
+    return;
+  }
+  try {
+    _voiceLocalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    _voiceActive = true;
+    _voiceMuted = false;
+    _voiceSeats.add(C.mySeat || 0);
+    if (btn) { btn.textContent = '🔇 靜音'; btn.classList.add('active'); }
+    addSystemMsg('🎙️ 你加入語音通話');
+    toast('🎙️ 語音通話已開啟');
+    updateVoiceStatusBar();
+    if (MODE === 'multi') send2({ type: 'rtc-join' });
+  } catch(e) {
+    let msg = '無法開啟麥克風';
+    if (e.name === 'NotAllowedError') msg = '請在瀏覽器允許麥克風權限後再試';
+    else if (e.name === 'NotFoundError') msg = '找不到麥克風裝置';
+    else if (e.name === 'NotSupportedError') msg = '瀏覽器不支援語音通話';
+    toast('❌ ' + msg);
+    addSystemMsg('❌ 語音失敗：' + msg);
+    if (btn) btn.textContent = '🎙️ 語音';
+  }
+}
+
+function stopVoiceCall() {
+  if (_voiceLocalStream) {
+    _voiceLocalStream.getTracks().forEach(t => t.stop());
+    _voiceLocalStream = null;
+  }
+  Object.values(_voicePeers).forEach(pc => pc.close());
+  _voicePeers = {};
+  _voiceActive = false;
+  _voiceSeats.delete(C.mySeat || 0);
+  const btn = document.getElementById('voice-btn');
+  if (btn) { btn.textContent = '🎙️ 語音'; btn.classList.remove('active'); }
+  addSystemMsg('🔇 你離開語音通話');
+  updateVoiceStatusBar();
+  if (MODE === 'multi') send2({ type: 'rtc-leave' });
+}
+
+function toggleMute() {
+  if (!_voiceLocalStream) return;
+  _voiceMuted = !_voiceMuted;
+  _voiceLocalStream.getAudioTracks().forEach(t => { t.enabled = !_voiceMuted; });
+  const btn = document.getElementById('voice-btn');
+  if (btn) btn.textContent = _voiceMuted ? '🎤 取消靜音' : '🔇 靜音';
+  toast(_voiceMuted ? '🔇 已靜音' : '🎤 已取消靜音');
+}
+
+function updateVoiceStatusBar() {
+  const bar = document.getElementById('voice-status-bar');
+  if (!bar) return;
+  if (_voiceSeats.size === 0) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  const players = MODE === 'ai' ? AI.players : (GS?.players || []);
+  const names = [..._voiceSeats].map(s => players[s]?.name || `座位${s+1}`).join('、');
+  bar.innerHTML = `<div class="voice-dot"></div><span>語音中：${names}</span>`;
+}
+
+// Override the old toggleVoice if it exists
+window.toggleVoice = startVoiceCall;
+
+// ══════════════════════════════════════
+// WIND DRAW (抽東南西北決定莊家)
+// Every new 將 (yi-jiang): draw wind tiles to decide dealer
+// ══════════════════════════════════════
+let _windDrawResult = null; // which seat got 東
+
+function startWindDraw() {
+  // Show the wind draw screen
+  show('s-wind');
+  renderWindCards();
+}
+
+function renderWindCards() {
+  const row = document.getElementById('wind-cards-row');
+  const subtitle = document.getElementById('wind-subtitle');
+  if (!row) return;
+
+  // 4 wind tiles shuffled, each player picks one face-down card
+  const winds = ['東','南','西','北'];
+  const shuffled = [...winds].sort(() => Math.random() - 0.5);
+
+  row.innerHTML = '';
+  // Show 4 face-down cards
+  shuffled.forEach((wind, i) => {
+    const card = document.createElement('div');
+    card.className = 'wind-card face-down';
+    card.dataset.wind = wind;
+    card.dataset.idx = i;
+    card.innerHTML = `<span style="font-size:24px;color:rgba(255,255,255,.3)">🀫</span>`;
+    card.onclick = () => flipWindCard(card, i, shuffled);
+    row.appendChild(card);
+  });
+
+  subtitle.textContent = '每人依序點一張牌，抽到「東」的人當莊家';
+  document.getElementById('wind-result').style.display = 'none';
+  document.getElementById('wind-next-btn').style.display = 'none';
+  _windDrawResult = null;
+}
+
+let _flippedCount = 0;
+function flipWindCard(card, idx, shuffled) {
+  if (!card.classList.contains('face-down')) return;
+  card.classList.remove('face-down');
+  card.classList.add('flipping');
+  const wind = card.dataset.wind;
+  const windColors = {'東':'#8b5500','南':'#8b5500','西':'#8b5500','北':'#8b5500','中':'#cc1111','發':'#1a7a1a'};
+  const col = windColors[wind] || '#333';
+  card.innerHTML = `<span class="wc-char" style="color:${col}">${wind}</span><span class="wc-label">風</span>`;
+  setTimeout(() => card.classList.remove('flipping'), 500);
+
+  _flippedCount++;
+  if (_flippedCount >= 4 || wind === '東') {
+    // Reveal all remaining cards
+    setTimeout(() => {
+      document.querySelectorAll('.wind-card.face-down').forEach(c => {
+        c.classList.remove('face-down');
+        const w = c.dataset.wind;
+        const col2 = windColors[w] || '#333';
+        c.innerHTML = `<span class="wc-char" style="color:${col2}">${w}</span><span class="wc-label">風</span>`;
+      });
+      // Show result
+      const res = document.getElementById('wind-result');
+      res.style.display = 'block';
+      res.innerHTML = `抽到 <strong>東風</strong> 的人當莊家！<br>莊家請骰骰子決定發牌方向。`;
+      document.getElementById('wind-next-btn').style.display = 'inline-block';
+      _flippedCount = 0;
+    }, 600);
+  }
+}
+
+function windDrawDone() {
+  // Proceed to dice screen
+  show('s-dice');
+  if (MODE === 'ai') {
+    // In AI mode, just show the dice animation
+    document.getElementById('dres').style.display = 'none';
+    document.getElementById('dsub').textContent = '莊家擲骰決定發牌方向...';
+    setTimeout(() => {
+      const v1=Math.ceil(Math.random()*6),v2=Math.ceil(Math.random()*6),v3=Math.ceil(Math.random()*6);
+      const tot=v1+v2+v3;
+      AI.dealer=(tot-1)%4;
+      const [d1,d2,d3]=[document.getElementById('d1'),document.getElementById('d2'),document.getElementById('d3')];
+      let cnt=0;const DF2=['⚀','⚁','⚂','⚃','⚄','⚅'];
+      const iv=setInterval(()=>{
+        d1.textContent=DF2[Math.floor(Math.random()*6)];
+        d2.textContent=DF2[Math.floor(Math.random()*6)];
+        d3.textContent=DF2[Math.floor(Math.random()*6)];
+        cnt++;
+        if(cnt>10){
+          clearInterval(iv);
+          d1.textContent=DF2[v1-1];d2.textContent=DF2[v2-1];d3.textContent=DF2[v3-1];
+          const r=document.getElementById('dres');r.style.display='block';
+          r.innerHTML=`點數: <strong>${tot}</strong><br>莊家: <strong>${AI.players[AI.dealer]?.name||''}</strong><br>方向: <strong>${tot%2===0?'逆時針':'順時針'}</strong>`;
+          setTimeout(()=>{show('s-game');aiInitRound();},1800);
+        }
+      },70);
+    }, 500);
+  }
+}
+
+// ══════════════════════════════════════
+// PATCH startAI to go to wind draw first
+// ══════════════════════════════════════
+const _origStartAI = typeof startAI === 'function' ? startAI.bind({}) : null;
+// Override startAI to show wind draw before dice
+if (typeof startAI === 'function') {
+  const origStartAI = startAI;
+  window.startAI = function() {
+    const name = document.getElementById('iname')?.value?.trim();
+    if (!name) { showErr && showErr('請輸入名字'); return; }
+    C.myName = name;
+    setBadge && setBadge('ai','🤖 人機對戰');
+    const av = CHARS.filter(c => c.id !== C.myChar.id);
+    shuf(av);
+    const ais = av.slice(0,3);
+    const startChips = (AI.base||100)*100 + (AI.tai||40)*8*50;
+    AI.startChips = startChips;
+    GAME_HISTORY = [];
+    AI.players = [
+      {name:C.myName,char:C.myChar,chips:startChips,hand:[],melds:[],flowers:[],wind:0},
+      {name:ais[0].n,char:ais[0],chips:startChips,hand:[],melds:[],flowers:[],wind:1},
+      {name:ais[1].n,char:ais[1],chips:startChips,hand:[],melds:[],flowers:[],wind:2},
+      {name:ais[2].n,char:ais[2],chips:startChips,hand:[],melds:[],flowers:[],wind:3},
+    ];
+    AI.dealer=0;AI.round=1;AI.totalRound=1;AI.gameOver=false;
+    C.base = parseInt(document.getElementById('aibase')?.value)||100;
+    C.tai  = parseInt(document.getElementById('aitai')?.value)||40;
+    AI.base = C.base; AI.tai = C.tai;
+    _flippedCount = 0;
+    startWindDraw(); // Wind draw first, then dice
+  };
+}
 </script>
+
+<!-- WIND DRAW SCREEN -->
+<div id="s-wind" class="screen">
+  <div class="wind-box">
+    <h2>🀄 抽牌決定莊家</h2>
+    <p id="wind-subtitle">每人抽一張牌，抽到東風的人當莊家</p>
+    <div class="wind-cards-row" id="wind-cards-row"></div>
+    <div class="wind-result" id="wind-result"></div>
+    <button class="btn-gold" id="wind-next-btn" onclick="windDrawDone()" style="display:none;margin-top:16px">骰骰子決定發牌方向 →</button>
+  </div>
+</div>
+
+<!-- YOUTUBE PANEL -->
+<button class="yt-toggle" id="yt-toggle" onclick="toggleYT()" style="display:none" title="背景音樂">▶</button>
+<div class="yt-panel" id="yt-panel">
+  <div class="yt-header">
+    <span>▶ 背景音樂 (YouTube)</span>
+    <button style="background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:16px;padding:0 2px" onclick="toggleYT()">✕</button>
+  </div>
+  <div class="yt-search-row">
+    <input class="yt-inp" id="yt-inp" placeholder="貼上 YouTube 網址或搜尋關鍵字..." onkeydown="if(event.key==='Enter')loadYT()">
+    <button class="yt-btn" onclick="loadYT()">播放</button>
+  </div>
+  <div class="yt-iframe-wrap" id="yt-wrap">
+    <iframe id="yt-frame" src="about:blank" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
+  <div class="yt-preset-label">熱門推薦</div>
+  <div class="yt-presets">
+    <span class="yt-preset" onclick="playYTId('jfKfPfyJRdk')">Lo-fi 放鬆</span>
+    <span class="yt-preset" onclick="playYTId('5qap5aO4i9A')">Lofi Hip Hop</span>
+    <span class="yt-preset" onclick="playYTId('DWcJFNfaw9c')">爵士咖啡</span>
+    <span class="yt-preset" onclick="playYTId('lTRiuFIWV54')">古典輕音樂</span>
+    <span class="yt-preset" onclick="playYTId('36YnV9STBqc')">台灣老歌</span>
+    <span class="yt-preset" onclick="playYTId('4xDzrJKXOOY')">嘻哈節奏</span>
+  </div>
+</div>
 
 <!-- CHAT TOGGLE -->
 <button class="chat-toggle" id="chat-toggle" onclick="toggleChat()" style="display:none">
@@ -2320,10 +2842,11 @@ window.show = function(id) {
   <div class="chat-header">
     <span>💬 聊天室</span>
     <div style="display:flex;gap:6px;align-items:center">
-      <button class="voice-btn" id="voice-btn" onclick="toggleVoice()">🎙️ 語音</button>
+      <button class="voice-btn" id="voice-btn" onclick="startVoiceCall()">🎙️ 語音</button>
       <button style="background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:16px;padding:0 2px" onclick="toggleChat()">✕</button>
     </div>
   </div>
+  <div class="voice-status-bar" id="voice-status-bar" style="display:none"></div>
   <div class="chat-msgs" id="chat-msgs"></div>
 
   <!-- Quick reactions / taunts -->
