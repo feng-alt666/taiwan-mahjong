@@ -711,7 +711,10 @@ body { -webkit-overflow-scrolling: touch; }
 <div id="s-lobby" class="screen">
   <div class="lbox">
     <h2>🎮 等待室</h2>
-    <div class="rcd"><div class="code" id="lcode"></div><div class="su" id="su"></div></div>
+    <div class="rcd"><div class="code" id="lcode"></div><div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+      <div class="su" id="su" style="flex:1;font-size:11px;color:rgba(255,255,255,.4);word-break:break-all"></div>
+      <button onclick="copyShareUrl()" style="padding:4px 10px;background:rgba(240,192,64,.15);border:1px solid rgba(240,192,64,.4);border-radius:7px;color:var(--gold);font-size:11px;cursor:pointer;white-space:nowrap;font-family:'Noto Sans TC',sans-serif" title="複製連結">📋 複製</button>
+    </div></div>
     <div class="cfgb" id="cfgb">
       <h3>💰 底數/台數 <span style="color:var(--gold);font-size:11px">(房主)</span></h3>
       <div class="nr"><label>底數</label><input class="inp" id="cb" type="number" value="100" min="1" oninput="sendCfg()"></div>
@@ -863,9 +866,84 @@ body { -webkit-overflow-scrolling: touch; }
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
 
+
+
+<!-- WIND DRAW SCREEN -->
+<div id="s-wind" class="screen">
+  <div class="wind-box">
+    <h2>🀄 抽牌決定莊家</h2>
+    <p id="wind-subtitle">每人抽一張牌，抽到東風的人當莊家</p>
+    <div class="wind-cards-row" id="wind-cards-row"></div>
+    <div class="wind-result" id="wind-result"></div>
+    <button class="btn-gold" id="wind-next-btn" onclick="windDrawDone()" style="display:none;margin-top:16px">骰骰子決定發牌方向 →</button>
+  </div>
+</div>
+
+<!-- CHAT TOGGLE -->
+<button class="chat-toggle" id="chat-toggle" onclick="toggleChat()" style="display:none">
+  💬
+  <div class="badge" id="chat-badge"></div>
+</button>
+
+<!-- CHAT PANEL -->
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-header">
+    <span>💬 聊天室</span>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button class="voice-btn" id="voice-btn" onclick="startVoiceCall()">🎙️ 語音</button>
+      <button style="background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:16px;padding:0 2px" onclick="toggleChat()">✕</button>
+    </div>
+  </div>
+  <div class="voice-status-bar" id="voice-status-bar" style="display:none"></div>
+  <div class="chat-msgs" id="chat-msgs"></div>
+  <div class="quick-reactions">
+    <button class="qr-btn" onclick="sendTaunt('哈哈你輸了 😂')">😂</button>
+    <button class="qr-btn" onclick="sendTaunt('好牌！🔥')">🔥</button>
+    <button class="qr-btn" onclick="sendTaunt('快出牌啦！⏰')">⏰</button>
+    <button class="qr-btn" onclick="sendTaunt('這牌也打？🤡')">🤡</button>
+    <button class="qr-btn" onclick="sendTaunt('恭喜胡牌！🎉')">🎉</button>
+    <button class="qr-btn" onclick="sendTaunt('我要胡了 😎')">😎</button>
+    <button class="qr-btn" onclick="sendTaunt('手氣真差 💀')">💀</button>
+    <button class="qr-btn" onclick="sendTaunt('再等等 🙏')">🙏</button>
+    <button class="qr-btn" onclick="sendTaunt('走運了吧 😤')">😤</button>
+    <button class="qr-btn" onclick="sendTaunt('妙啊！👏')">👏</button>
+  </div>
+  <div class="chat-input-row">
+    <input class="chat-inp" id="chat-inp" placeholder="輸入訊息..." maxlength="100"
+      onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">送出</button>
+  </div>
+</div>
+
+<!-- YOUTUBE PANEL -->
+<button class="yt-toggle" id="yt-toggle" onclick="toggleYT()" style="display:none" title="背景音樂">▶</button>
+<div class="yt-panel" id="yt-panel">
+  <div class="yt-header">
+    <span>▶ 背景音樂 (YouTube)</span>
+    <button style="background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:16px;padding:0 4px" onclick="toggleYT()">✕</button>
+  </div>
+  <div class="yt-search-row">
+    <input class="yt-inp" id="yt-inp" placeholder="貼上 YouTube 網址 或 關鍵字搜尋..." onkeydown="if(event.key==='Enter')loadYT()">
+    <button class="yt-btn" onclick="loadYT()">播放</button>
+  </div>
+  <div class="yt-iframe-wrap">
+    <iframe id="yt-frame" src="about:blank" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
+  <div class="yt-preset-label">熱門推薦</div>
+  <div class="yt-presets">
+    <span class="yt-preset" onclick="playYTId('jfKfPfyJRdk')">Lo-fi 放鬆</span>
+    <span class="yt-preset" onclick="playYTId('5qap5aO4i9A')">Lofi Hip Hop</span>
+    <span class="yt-preset" onclick="playYTId('DWcJFNfaw9c')">爵士咖啡</span>
+    <span class="yt-preset" onclick="playYTId('lTRiuFIWV54')">古典輕音樂</span>
+    <span class="yt-preset" onclick="playYTId('36YnV9STBqc')">台灣老歌</span>
+    <span class="yt-preset" onclick="playYTId('4xDzrJKXOOY')">嘻哈節奏</span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 <script>
+
 // ══════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════
@@ -1958,7 +2036,7 @@ function mAct(type){
 function showLobby(){
   show('s-lobby');
   document.getElementById('lcode').textContent=C.roomCode;
-  document.getElementById('su').textContent=`分享: ${location.origin}?room=${C.roomCode}`;
+  document.getElementById('su').textContent=`${location.origin}?room=${C.roomCode}`;
   document.getElementById('cfgb').style.display=C.isHost?'':'none';
   document.getElementById('cfgro').style.display=C.isHost?'none':'';
   document.getElementById('bst').style.display=C.isHost?'':'none';
@@ -2105,7 +2183,21 @@ function startAI(){
 // UTILS
 // ══════════════════════════════════════
 function send2(o){if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify(o));}
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  const ytBtn=document.getElementById('yt-toggle');
+  const chatBtn=document.getElementById('chat-toggle');
+  if(id==='s-game'){
+    if(ytBtn)ytBtn.style.display='flex';
+    if(chatBtn)chatBtn.style.display='flex';
+  } else {
+    if(ytBtn)ytBtn.style.display='none';
+    if(chatBtn)chatBtn.style.display='none';
+    if(typeof ytOpen!=='undefined'&&ytOpen)toggleYT();
+    if(typeof chatOpen!=='undefined'&&chatOpen)toggleChat();
+  }
+}
 function closeOv(id){document.getElementById(id).classList.remove('on');}
 function setTxt(t){document.getElementById('stxt').textContent=t;}
 function setBadge(type,txt){const b=document.getElementById('cbg');b.className=`cbg ${type}`;b.textContent=txt;}
@@ -2181,6 +2273,19 @@ function clearHistory(){
 // ══════════════════════════════════════
 // BOOT
 // ══════════════════════════════════════
+function copyShareUrl(){
+  const url=document.getElementById('su')?.textContent?.trim();
+  if(!url)return;
+  // Extract just the URL part after "分享: "
+  const actualUrl = url.replace(/^分享:\s*/,'');
+  navigator.clipboard.writeText(actualUrl).then(()=>toast('✅ 連結已複製！')).catch(()=>{
+    // Fallback
+    const ta=document.createElement('textarea');ta.value=actualUrl;
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);toast('✅ 連結已複製！');
+  });
+}
+
 renderCharGrid();
 connectWS();
 const urlR=new URLSearchParams(location.search).get('room');
@@ -2315,300 +2420,6 @@ function escapeHtml(t) {
 function showChatBtn() {
   const btn = document.getElementById('chat-toggle');
   if (btn) btn.style.display = 'flex';
-}
-
-// ══════════════════════════════════════
-// VOICE CALL (WebRTC)
-// ══════════════════════════════════════
-let localStream = null;
-let peerConnections = {}; // seatIdx -> RTCPeerConnection
-let voiceActive = false;
-let voiceSeats = new Set(); // who's in voice
-
-const RTC_CONFIG = {
-  iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-  ]
-};
-
-async function toggleVoice() {
-  if (voiceActive) {
-    leaveVoice();
-  } else {
-    await joinVoice();
-  }
-}
-
-async function joinVoice() {
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-  } catch (e) {
-    toast('❌ 無法取得麥克風：' + e.message);
-    return;
-  }
-  voiceActive = true;
-  voiceSeats.add(C.mySeat);
-  updateVoiceUI();
-  addSystemMsg('🎙️ 你加入語音通話');
-  if (MODE === 'multi') {
-    send2({ type: 'rtc-join' });
-  }
-  const btn = document.getElementById('voice-btn');
-  if (btn) { btn.textContent = '🔇 靜音'; btn.classList.add('active'); }
-}
-
-function leaveVoice() {
-  if (localStream) {
-    localStream.getTracks().forEach(t => t.stop());
-    localStream = null;
-  }
-  Object.values(peerConnections).forEach(pc => pc.close());
-  peerConnections = {};
-  voiceActive = false;
-  voiceSeats.delete(C.mySeat);
-  updateVoiceUI();
-  addSystemMsg('🔇 你離開語音通話');
-  if (MODE === 'multi') send2({ type: 'rtc-leave' });
-  const btn = document.getElementById('voice-btn');
-  if (btn) { btn.textContent = '🎙️ 語音'; btn.classList.remove('active'); }
-}
-
-async function createPeerConnection(remoteSeat) {
-  const pc = new RTCPeerConnection(RTC_CONFIG);
-  peerConnections[remoteSeat] = pc;
-
-  if (localStream) {
-    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-  }
-
-  pc.ontrack = (e) => {
-    const audio = new Audio();
-    audio.srcObject = e.streams[0];
-    audio.autoplay = true;
-    document.body.appendChild(audio);
-  };
-
-  pc.onicecandidate = (e) => {
-    if (e.candidate) {
-      send2({ type: 'rtc-ice', to: remoteSeat, candidate: e.candidate });
-    }
-  };
-
-  return pc;
-}
-
-async function handleRtcJoin(fromSeat) {
-  if (!voiceActive || fromSeat === C.mySeat) return;
-  voiceSeats.add(fromSeat);
-  updateVoiceUI();
-  // We initiate offer to the new joiner
-  const pc = await createPeerConnection(fromSeat);
-  const offer = await pc.createOffer();
-  await pc.setLocalDescription(offer);
-  send2({ type: 'rtc-offer', to: fromSeat, sdp: offer });
-}
-
-async function handleRtcOffer(fromSeat, sdp) {
-  if (!voiceActive) return;
-  const pc = await createPeerConnection(fromSeat);
-  await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-  const answer = await pc.createAnswer();
-  await pc.setLocalDescription(answer);
-  send2({ type: 'rtc-answer', to: fromSeat, sdp: answer });
-}
-
-async function handleRtcAnswer(fromSeat, sdp) {
-  const pc = peerConnections[fromSeat];
-  if (pc) await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-}
-
-async function handleRtcIce(fromSeat, candidate) {
-  const pc = peerConnections[fromSeat];
-  if (pc) await pc.addIceCandidate(new RTCIceCandidate(candidate));
-}
-
-function handleRtcLeave(fromSeat) {
-  const pc = peerConnections[fromSeat];
-  if (pc) { pc.close(); delete peerConnections[fromSeat]; }
-  voiceSeats.delete(fromSeat);
-  updateVoiceUI();
-}
-
-function updateVoiceUI() {
-  const overlay = document.getElementById('voice-overlay');
-  const seatsEl = document.getElementById('voice-seats');
-  if (!overlay || !seatsEl) return;
-  if (voiceSeats.size === 0) {
-    overlay.classList.remove('show');
-    return;
-  }
-  overlay.classList.add('show');
-  seatsEl.innerHTML = '';
-  const players = MODE === 'ai' ? AI.players : (GS?.players || []);
-  voiceSeats.forEach(seat => {
-    const p = players[seat];
-    if (!p) return;
-    const div = document.createElement('div');
-    div.className = 'voice-seat' + (seat === C.mySeat ? ' speaking' : '');
-    div.innerHTML = `<div class="vs-av">${p.char?.e || '👤'}</div><div class="vs-nm">${p.name}</div>`;
-    seatsEl.appendChild(div);
-  });
-}
-
-// ══════════════════════════════════════
-// HANDLE INCOMING MULTI MESSAGES (extend existing hMsg)
-// ══════════════════════════════════════
-const _origHMsg = typeof hMsg === 'function' ? hMsg : null;
-// Patch the message handler to also handle chat/taunt/rtc
-const _hMsgPatch = function(msg) {
-  switch(msg.type) {
-    case 'chat':
-      addChatMsg(msg);
-      // Show toast for chat when panel is closed
-      if (!chatOpen) toast(`${msg.char?.e || '💬'} ${msg.name}: ${msg.text.substring(0, 30)}`);
-      break;
-    case 'taunt':
-      addTauntMsg(msg);
-      spawnTauntFloat(msg.taunt);
-      if (!chatOpen) toast(`${msg.char?.e || '😂'} ${msg.name}: ${msg.taunt}`);
-      break;
-    case 'rtc-join':
-      if (msg.seat !== (C.mySeat||0)) {
-        _voiceSeats.add(msg.seat);
-        updateVoiceStatusBar();
-        addSystemMsg(`🎙️ ${msg.name||'玩家'} 加入語音`);
-        if (_voiceActive) handleRtcJoin(msg.seat);
-      }
-      break;
-    case 'rtc-leave':
-      _voiceSeats.delete(msg.seat);
-      updateVoiceStatusBar();
-      handleRtcLeave(msg.seat);
-      addSystemMsg(`🔇 ${GS?.players[msg.seat]?.name||'玩家'} 離開語音`);
-      break;
-    case 'rtc-offer':
-      handleRtcOffer(msg.from, msg.sdp);
-      break;
-    case 'rtc-answer':
-      handleRtcAnswer(msg.from, msg.sdp);
-      break;
-    case 'rtc-ice':
-      handleRtcIce(msg.from, msg.candidate);
-      break;
-    default:
-      if (_origHMsg) _origHMsg(msg);
-      break;
-  }
-};
-
-// Override ws message handler after ws is connected
-const _origConnectWS = connectWS;
-// Re-wire after page load
-window.addEventListener('load', () => {
-  // Patch ws.onmessage after connection established
-  const checkWs = setInterval(() => {
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      clearInterval(checkWs);
-      const origOnMsg = ws.onmessage;
-      ws.onmessage = (ev) => {
-        try {
-          const msg = JSON.parse(ev.data);
-          // Try patch first
-          if (['chat','taunt','rtc-join','rtc-leave','rtc-offer','rtc-answer','rtc-ice'].includes(msg.type)) {
-            _hMsgPatch(msg);
-          } else {
-            origOnMsg(ev);
-          }
-        } catch(e) { console.error(e); }
-      };
-    }
-  }, 500);
-});
-
-// Show chat button when game screen is shown
-const _origShow = show;
-window.show = function(id) {
-  _origShow(id);
-  if (id === 's-game') showChatBtn();
-  else {
-    const btn = document.getElementById('chat-toggle');
-    if (btn) btn.style.display = 'none';
-    if (chatOpen) toggleChat();
-  }
-};
-
-
-// 停止 YouTube
-function stopYTOnEnd() {
-  const frame = document.getElementById('yt-frame');
-  if (frame) { frame.src = 'about:blank'; }
-  if (ytOpen) toggleYT();
-}
-
-// ══════════════════════════════════════
-// YOUTUBE BACKGROUND MUSIC
-// ══════════════════════════════════════
-let ytOpen = false;
-
-function toggleYT() {
-  ytOpen = !ytOpen;
-  document.getElementById('yt-panel').classList.toggle('open', ytOpen);
-}
-
-function extractYTId(input) {
-  input = input.trim();
-  // Full URL patterns
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-    /^([a-zA-Z0-9_-]{11})$/,
-  ];
-  for (const p of patterns) {
-    const m = input.match(p);
-    if (m) return m[1];
-  }
-  return null;
-}
-
-function loadYT() {
-  const inp = document.getElementById('yt-inp');
-  const val = inp?.value?.trim();
-  if (!val) return;
-  const id = extractYTId(val);
-  if (id) {
-    playYTId(id);
-  } else {
-    // Open YouTube search in new tab
-    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(val)}`, '_blank');
-    toast('已開啟 YouTube 搜尋，複製影片連結貼回來播放');
-  }
-}
-
-function playYTId(id) {
-  const frame = document.getElementById('yt-frame');
-  if (frame) {
-    frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
-    if (!ytOpen) toggleYT();
-  }
-}
-
-function showYTBtn() {
-  const btn = document.getElementById('yt-toggle');
-  if (btn) btn.style.display = 'flex';
-}
-
-// Show YT button when game starts
-const _origShowYT = window.show;
-if (typeof window.show === 'function') {
-  window.show = function(id) {
-    _origShowYT(id);
-    if (id === 's-game') { showYTBtn(); showChatBtn && showChatBtn(); }
-    else {
-      const yt = document.getElementById('yt-toggle');
-      if (yt) yt.style.display = 'none';
-      if (ytOpen) toggleYT();
-    }
-  };
 }
 
 // ══════════════════════════════════════
@@ -2844,17 +2655,23 @@ function flipWindMulti(card, idx, assignment, dealerSeat) {
       res.innerHTML = `抽到 <strong>東風</strong> 的是 <strong>${dn}</strong>！<br>由莊家骰骰子決定方向。`;
       const nb = document.getElementById('wind-next-btn');
       nb.style.display = 'inline-block';
-      if (C.isHost) {
-        nb.textContent = '🎲 骰骰子 →';
+      // 抽到東風的人（dealerSeat）才能按骰骰子，不是房主
+      const iAmDealer = (C.mySeat === dealerSeat);
+      if (iAmDealer) {
+        nb.textContent = '🎲 我是莊家！骰骰子 →';
         nb.disabled = false;
+        nb.style.background = 'linear-gradient(135deg,#f0c040,#c8960c)';
+        nb.style.color = '#1a1a00';
+        nb.style.fontWeight = '700';
         nb.onclick = () => {
           send2({ type: 'windDrawDone' });
           show('s-dice');
           document.getElementById('dres').style.display = 'none';
-          document.getElementById('dsub').textContent = '骰骰子決定發牌方向...';
+          document.getElementById('dsub').textContent = '莊家骰骰子中...';
         };
       } else {
-        nb.textContent = '等待莊家骰骰子...';
+        const dealerName = (GS?.players||[])[dealerSeat]?.name || `玩家${dealerSeat+1}`;
+        nb.textContent = `⏳ 等待 ${dealerName} 骰骰子...`;
         nb.disabled = true;
         nb.onclick = null;
       }
@@ -2863,3 +2680,53 @@ function flipWindMulti(card, idx, assignment, dealerSeat) {
   }
 }
 
+// ══════════════════════════════════════
+// YOUTUBE BACKGROUND MUSIC
+// ══════════════════════════════════════
+let ytOpen = false;
+
+function stopYTOnEnd() {
+  const frame = document.getElementById('yt-frame');
+  if (frame) frame.src = 'about:blank';
+  if (ytOpen) toggleYT();
+}
+
+function toggleYT() {
+  ytOpen = !ytOpen;
+  document.getElementById('yt-panel')?.classList.toggle('open', ytOpen);
+}
+
+function extractYTId(input) {
+  input = (input||'').trim();
+  const m = input.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
+  return null;
+}
+
+function loadYT() {
+  const val = document.getElementById('yt-inp')?.value?.trim();
+  if (!val) return;
+  const id = extractYTId(val);
+  if (id) { playYTId(id); }
+  else { window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(val)}`, '_blank'); toast('已開啟 YouTube 搜尋，複製影片連結貼回來播放'); }
+}
+
+function playYTId(id) {
+  const frame = document.getElementById('yt-frame');
+  if (frame) {
+    frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+    if (!ytOpen) toggleYT();
+  }
+}
+
+function showYTBtn() {
+  const btn = document.getElementById('yt-toggle');
+  if (btn) btn.style.display = 'flex';
+}
+
+
+
+</script>
+</body>
+</html>
