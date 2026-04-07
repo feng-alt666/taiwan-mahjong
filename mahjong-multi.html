@@ -1889,12 +1889,16 @@ function hMsg(msg){
       toast('遊戲開始！');
       break;
     case 'windDraw': {
-      // 伺服器送來抽牌結果，顯示抽牌動畫
-      C.windAssignment = msg.assignment;   // seat[i] -> wind char
+      C.windAssignment = msg.assignment;
       C.windDealerSeat = msg.dealerSeat;
-      _flippedCount = 0;
+      window._mFlip = 0;
       show('s-wind');
       renderWindCardsMulti(msg.assignment, msg.dealerSeat);
+      break;
+    }
+    case 'windFlip': {
+      // Another player flipped their card
+      handleWindFlip(msg.seat, msg.wind);
       break;
     }
     case 'endGame': {
@@ -1911,7 +1915,10 @@ function hMsg(msg){
       if (msg.requestName) toast(`🏁 ${msg.requestName} 申請結束遊戲`);
       break;
     }
-    case 'dice':animDice(msg);break;
+    case 'dice':
+      show('s-dice');
+      animDice(msg);
+      break;
     case 'roundStart':C.discPos=[];toast(`第 ${msg.round} 局開始！`);break;
     case 'state':GS=msg;renderMulti();break;
     case 'discard':setTxt(`${msg.seat===C.mySeat?'你':(GS?.players[msg.seat]?.name||'')} 打出 ${msg.label}`);break;
@@ -2623,61 +2630,98 @@ function renderWindCardsMulti(assignment, dealerSeat) {
   if (!row) return;
   row.innerHTML = '';
   window._mFlip = 0;
+  window._windDealerSeat = dealerSeat;
+  window._windAssignment = assignment;
+  const pls = GS?.players || [];
   assignment.forEach((wind, i) => {
     const card = document.createElement('div');
     card.className = 'wind-card face-down';
     card.dataset.wind = wind;
-    const pls = GS?.players || [];
+    card.dataset.seatIdx = i;
     const nm = pls[i]?.name || `玩家${i+1}`;
-    card.innerHTML = `<span style="font-size:22px;color:rgba(255,255,255,.3)">🀫</span><span style="font-size:10px;color:rgba(255,255,255,.3);display:block;margin-top:4px">${nm}</span>`;
-    card.onclick = () => { if (!card.classList.contains('face-down')) return; flipWindMulti(card, i, assignment, dealerSeat); };
+    const isMe = (i === C.mySeat);
+    // Each card shows who it belongs to; only owner can click it
+    card.innerHTML = `<span style="font-size:22px;color:rgba(255,255,255,.3)">🀫</span><span style="font-size:10px;color:${isMe?'#f0c040':'rgba(255,255,255,.35)'};display:block;margin-top:4px">${nm}${isMe?' ← 點我':''}</span>`;
+    if (isMe) {
+      card.style.cursor = 'pointer';
+      card.onclick = () => {
+        if (!card.classList.contains('face-down')) return;
+        flipWindMulti(card, i);
+      };
+    } else {
+      card.style.cursor = 'default';
+      card.style.opacity = '0.75';
+    }
     row.appendChild(card);
   });
-  subtitle.textContent = C.isHost ? '依序點牌翻開，抽到「東」的人當莊家' : '等待翻牌中...';
+  subtitle.textContent = '請點自己那張牌翻開！抽到「東」的人當莊家';
   document.getElementById('wind-result').style.display = 'none';
   document.getElementById('wind-next-btn').style.display = 'none';
 }
 
-function flipWindMulti(card, idx, assignment, dealerSeat) {
-  card.classList.remove('face-down'); card.classList.add('flipping');
-  const wind = assignment[idx];
+// Server broadcasts windFlip → all see it
+function handleWindFlip(seat, wind) {
   const WC = {'東':'#cc1111','南':'#8b5500','西':'#8b5500','北':'#1a5ca8'};
+  const cards = document.querySelectorAll('.wind-card');
+  const card = cards[seat];
+  if (!card) return;
+  card.classList.remove('face-down');
+  card.classList.add('flipping');
+  card.style.opacity = '1';
   const pls = GS?.players || [];
-  const nm = pls[idx]?.name || `玩家${idx+1}`;
+  const nm = pls[seat]?.name || `玩家${seat+1}`;
   card.innerHTML = `<span class="wc-char" style="color:${WC[wind]||'#333'};font-size:28px">${wind}</span><span style="font-size:10px;color:rgba(0,0,0,.5)">${nm}</span>`;
   setTimeout(() => card.classList.remove('flipping'), 500);
   window._mFlip = (window._mFlip || 0) + 1;
   if (window._mFlip >= 4) {
-    setTimeout(() => {
-      const res = document.getElementById('wind-result');
-      res.style.display = 'block';
-      const dn = (GS?.players || [])[dealerSeat]?.name || `玩家${dealerSeat+1}`;
-      res.innerHTML = `抽到 <strong>東風</strong> 的是 <strong>${dn}</strong>！<br>由莊家骰骰子決定方向。`;
-      const nb = document.getElementById('wind-next-btn');
-      nb.style.display = 'inline-block';
-      // 抽到東風的人（dealerSeat）才能按骰骰子，不是房主
-      const iAmDealer = (C.mySeat === dealerSeat);
-      if (iAmDealer) {
-        nb.textContent = '🎲 我是莊家！骰骰子 →';
-        nb.disabled = false;
-        nb.style.background = 'linear-gradient(135deg,#f0c040,#c8960c)';
-        nb.style.color = '#1a1a00';
-        nb.style.fontWeight = '700';
-        nb.onclick = () => {
-          send2({ type: 'windDrawDone' });
-          show('s-dice');
-          document.getElementById('dres').style.display = 'none';
-          document.getElementById('dsub').textContent = '莊家骰骰子中...';
-        };
-      } else {
-        const dealerName = (GS?.players||[])[dealerSeat]?.name || `玩家${dealerSeat+1}`;
-        nb.textContent = `⏳ 等待 ${dealerName} 骰骰子...`;
-        nb.disabled = true;
-        nb.onclick = null;
-      }
-      window._mFlip = 0;
-    }, 700);
+    setTimeout(() => showWindResult(), 700);
   }
+}
+
+function showWindResult() {
+  const dealerSeat = window._windDealerSeat ?? 0;
+  const res = document.getElementById('wind-result');
+  if (!res) return;
+  const dn = (GS?.players || [])[dealerSeat]?.name || `玩家${dealerSeat+1}`;
+  res.style.display = 'block';
+  res.innerHTML = `抽到 <strong>東風</strong> 的是 <strong>${dn}</strong>！<br>由莊家骰骰子決定發牌方向。`;
+  const nb = document.getElementById('wind-next-btn');
+  nb.style.display = 'inline-block';
+  const iAmDealer = (C.mySeat === dealerSeat);
+  if (iAmDealer) {
+    nb.textContent = '🎲 我是莊家！點我骰骰子 →';
+    nb.disabled = false;
+    nb.style.background = 'linear-gradient(135deg,#f0c040,#c8960c)';
+    nb.style.color = '#1a1a00';
+    nb.style.fontWeight = '700';
+    nb.onclick = () => {
+      send2({ type: 'windDrawDone' });
+      show('s-dice');
+      document.getElementById('dres').style.display = 'none';
+      document.getElementById('dsub').textContent = '莊家骰骰子中...';
+    };
+  } else {
+    nb.textContent = `⏳ 等待 ${dn} 骰骰子...`;
+    nb.disabled = true;
+    nb.onclick = null;
+  }
+  window._mFlip = 0;
+}
+
+function flipWindMulti(card, idx) {
+  // Send to server; server will broadcast to all via windFlip
+  send2({ type: 'windFlip' });
+  // Show locally immediately for responsiveness
+  const assignment = window._windAssignment || [];
+  const wind = assignment[idx];
+  const WC = {'東':'#cc1111','南':'#8b5500','西':'#8b5500','北':'#1a5ca8'};
+  const pls = GS?.players || [];
+  const nm = pls[idx]?.name || `玩家${idx+1}`;
+  card.classList.remove('face-down');
+  card.classList.add('flipping');
+  card.innerHTML = `<span class="wc-char" style="color:${WC[wind]||'#333'};font-size:28px">${wind}</span><span style="font-size:10px;color:rgba(0,0,0,.5)">${nm}</span>`;
+  setTimeout(() => card.classList.remove('flipping'), 500);
+  // _mFlip will be incremented by handleWindFlip when server echoes back
 }
 
 // ══════════════════════════════════════

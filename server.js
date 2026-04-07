@@ -339,14 +339,16 @@ class Room {
 
   // ── Wind Draw (抽東南西北) ──
   startWindDraw() {
-    // 隨機打亂風牌分配，讓客戶端顯示抽牌動畫
     const winds = ['東','南','西','北'];
     const shuffled = [...winds].sort(() => Math.random() - 0.5);
+    const dealerSeat = shuffled.indexOf('東');
+    // Save to room for later reference
+    this.windAssignment = shuffled;
+    this.windDealerSeat = dealerSeat;
     this.broadcastAll({
       type: 'windDraw',
-      // 每個座位對應的風牌（結果先算好，動畫結束後揭示）
-      assignment: shuffled, // seat[i] gets wind shuffled[i]
-      dealerSeat: shuffled.indexOf('東'), // 抽到東的人當莊
+      assignment: shuffled,   // seat[i] draws wind shuffled[i]
+      dealerSeat: dealerSeat, // who gets 東 = dealer
     });
   }
 
@@ -356,7 +358,12 @@ class Room {
     const d2 = Math.floor(Math.random() * 6) + 1;
     const d3 = Math.floor(Math.random() * 6) + 1;
     const total = d1 + d2 + d3;
-    this.dealer = (total - 1) % 4;
+    // 莊家已由抽牌決定 (windDealerSeat)，骰子只決定發牌方向
+    if (this.windDealerSeat !== undefined) {
+      this.dealer = this.windDealerSeat;
+    } else {
+      this.dealer = (total - 1) % 4;
+    }
     this.currentTurn = this.dealer;
     const dir = total % 2 === 0 ? '逆時針' : '順時針';
     this.broadcastAll({
@@ -794,9 +801,23 @@ wss.on('connection', (ws) => {
       }
       // ── 抽牌決定莊家（客戶端完成後通知伺服器） ──
       case 'windDrawDone': {
-        if (!clientRoom || clientSeat !== 0) return; // 只有房主能提交
-        // 現在執行骰子
+        if (!clientRoom) return;
+        // 任何人都可以送，但只有莊家（抽到東的人）有效
+        // dealerSeat is stored in the room from startWindDraw
+        if (clientSeat !== clientRoom.windDealerSeat && clientSeat !== 0) return;
+        // Now roll dice (just for direction, dealer already decided)
         clientRoom.rollDiceAndStart();
+        break;
+      }
+      // ── 每個玩家翻自己的牌 ──
+      case 'windFlip': {
+        if (!clientRoom) return;
+        // Broadcast to all that this seat flipped their card
+        clientRoom.broadcastAll({
+          type: 'windFlip',
+          seat: clientSeat,
+          wind: clientRoom.windAssignment?.[clientSeat] || '?',
+        });
         break;
       }
       // ── 一方要求結束遊戲 ──
