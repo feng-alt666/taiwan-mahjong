@@ -1222,7 +1222,13 @@ function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*
 
 function canWin(hand,melds){
   const tiles=srt(hand.filter(x=>!isF(x)));
-  return chkW(tiles,4-melds.length);
+  const n=4-melds.length;
+  // 七對子 (7 pairs, no melds allowed)
+  if(melds.length===0&&tiles.length===14){
+    const cv={};tiles.forEach(t=>{const k=tk(t);cv[k]=(cv[k]||0)+1;});
+    if(Object.values(cv).every(v=>v===2))return true;
+  }
+  return chkW(tiles,n);
 }
 function chkW(t,n){
   if(n===0&&t.length===2)return tk(t[0])===tk(t[1]);
@@ -1233,14 +1239,24 @@ function chkW(t,n){
   return false;
 }
 function fmtS(t,n){
-  if(n===0&&t.length===0)return true;if(n===0||t.length===0)return false;
-  const x=t[0],tr=[0];
-  for(let i=1;i<t.length&&tr.length<3;i++)if(tk(t[i])===tk(x))tr.push(i);
-  if(tr.length===3){const r=t.filter((_,i)=>!tr.includes(i));if(fmtS(r,n-1))return true;}
+  if(n===0)return t.length===0;
+  if(t.length===0||t.length<n*3)return false;
+  const x=t[0];
+  // 嘗試刻子 (3張相同)
+  const same=[];
+  for(let i=0;i<t.length&&same.length<3;i++)if(tk(t[i])===tk(x))same.push(i);
+  if(same.length>=3){
+    const r=t.filter((_,i)=>!same.slice(0,3).includes(i));
+    if(fmtS(r,n-1))return true;
+  }
+  // 嘗試順子 (3張連續)
   if(x.honor==null&&x.flower==null){
     const i2=t.findIndex((y,i)=>i>0&&y.suit===x.suit&&y.num===x.num+1);
     const i3=t.findIndex((y,i)=>i>0&&y.suit===x.suit&&y.num===x.num+2);
-    if(i2!==-1&&i3!==-1){const r=t.filter((_,i)=>i!==0&&i!==i2&&i!==i3);if(fmtS(r,n-1))return true;}
+    if(i2!==-1&&i3!==-1){
+      const r=t.filter((_,i)=>i!==0&&i!==i2&&i!==i3);
+      if(fmtS(r,n-1))return true;
+    }
   }
   return false;
 }
@@ -1625,8 +1641,16 @@ function A(type){
     if(!AI.deck.length){aiExhaust();return;}
     const dr=AI.deck.pop();
     if(isF(dr)){
-      me.flowers.push(dr);toast('🌸 補花！'+FL[dr.flower]);
-      if(AI.deck.length)me.hand.push(AI.deck.pop());
+      me.flowers.push(dr);
+      // 連補花：一直補到不是花為止
+      let comp=AI.deck.pop();
+      while(comp&&isF(comp)){
+        me.flowers.push(comp);
+        toast('🌸 補花！'+FL[comp.flower]);
+        comp=AI.deck.length?AI.deck.pop():null;
+      }
+      if(comp)me.hand.push(comp);
+      toast('🌸 補花！'+FL[dr.flower]);
     } else me.hand.push(dr);
     AI.phase='discard';renderGame();updBtns();
     if(canWin(me.hand,me.melds))toast('可以自摸！');
