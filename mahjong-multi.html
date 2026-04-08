@@ -1195,6 +1195,7 @@ let C={myChar:CHARS[0],myName:'',mySeat:0,isHost:false,roomCode:'',selIdx:-1,chi
 // AI local game state
 let AI={
   deck:[],players:[],dealer:0,round:1,totalRound:1,
+  consecutive:0,
   currentTurn:0,phase:'idle',
   lastDiscard:null,lastDiscardBy:-1,
   discards:[],gameOver:false,base:100,tai:40,
@@ -1270,7 +1271,11 @@ function calcY(player,isSelf){
   if(player.melds.length>0&&player.melds.every(m=>m.type==='chi')&&suits.length>1)ys.push({name:'平胡',tai:1});
   if(player.melds.length===0&&!isSelf)ys.push({name:'門清',tai:1});
   if(isSelf)ys.push({name:'自摸',tai:1});
-  if(player.wind===0)ys.push({name:'莊家',tai:1});
+  if(player.wind===0){
+    const lian = AI.consecutive||0;
+    if(lian>0) ys.push({name:`莊連${lian}`,tai:1+lian*2});
+    else ys.push({name:'莊家',tai:1});
+  }
   const wm=player.melds.find(m=>(m.type==='pong'||m.type==='kong')&&m.tiles[0].honor===player.wind);
   if(wm)ys.push({name:`${WN[player.wind]}風刻`,tai:1});
   [[4,'中'],[5,'發'],[6,'白']].forEach(([h,nm])=>{
@@ -1309,6 +1314,34 @@ function calcPays(wi,isSelf,from,amt){
 // ══════════════════════════════════════
 // AI ROUND
 // ══════════════════════════════════════
+function aiWindDraw(){
+  // AI mode: show wind draw screen briefly then start
+  const WIND_CHARS = ['東','南','西','北'];
+  const shuffled = [...WIND_CHARS].sort(()=>Math.random()-.5);
+  const dealerIdx = shuffled.indexOf('東');
+  AI.dealer = dealerIdx;
+  show('s-wind');
+  // Render cards
+  const row = document.getElementById('wind-cards-row');
+  const sub = document.getElementById('wind-subtitle');
+  if(row) {
+    row.innerHTML = '';
+    shuffled.forEach((wind,i)=>{
+      const p = AI.players[i];
+      const WC = {'東':'#cc1111','南':'#8b5500','西':'#8b5500','北':'#1a5ca8'};
+      const card = document.createElement('div');
+      card.className = 'wind-card';
+      card.innerHTML = `<span class="wc-char" style="color:${WC[wind]};font-size:28px">${wind}</span><span style="font-size:10px;color:rgba(0,0,0,.5)">${p?.name||'玩家'+(i+1)}</span>`;
+      row.appendChild(card);
+    });
+  }
+  if(sub) sub.textContent = `🀄 抽到「東」的是 ${AI.players[dealerIdx]?.name||'玩家'}，當莊開始新的一將！`;
+  const res = document.getElementById('wind-result');
+  if(res){ res.style.display='block'; res.innerHTML=`<strong>${AI.players[dealerIdx]?.name||'玩家'}</strong> 當莊！`; }
+  const nb = document.getElementById('wind-next-btn');
+  if(nb){ nb.style.display='inline-block'; nb.textContent='🎲 骰骰子開始新一將 →'; nb.disabled=false; nb.onclick=()=>{ show('s-dice'); aiRollDice(); }; }
+}
+
 function aiInitRound(){
   C.discPos=[];C.selIdx=-1;closeOv('ov-action');closeOv('ov-chi');closeOv('ov-win');
   const dk=shuf(bld());
@@ -1368,6 +1401,7 @@ function aiDoTurn(){
     const y=calcY(p,true);
     const pays=calcPays(AI.currentTurn,true,null,y.totalAmt);
     Object.keys(pays).forEach(i=>AI.players[i].chips+=pays[i]);
+    if(AI.currentTurn===AI.dealer){ AI.consecutive=(AI.consecutive||0)+1; } else { AI.consecutive=0; }
     renderGame();showWin(AI.currentTurn,y,pays,'自摸');return;
   }
 
@@ -1425,6 +1459,7 @@ function aiDrop(tile,from){
         const y=calcY(op,false);
         const pays=calcPays(pi,false,from,y.totalAmt);
         Object.keys(pays).forEach(i=>AI.players[i].chips+=pays[i]);
+        if(pi===AI.dealer){ AI.consecutive=(AI.consecutive||0)+1; } else { AI.consecutive=0; }
         renderGame();showWin(pi,y,pays,`點砲 (${AI.players[from].name})`);return;
       }
       if(ocnt>=2&&Math.random()<0.25){
@@ -1499,6 +1534,7 @@ function doWinOnDiscard(fromIdx){
   const y=calcY(me,false);
   const pays=calcPays(0,false,fromIdx,y.totalAmt);
   Object.keys(pays).forEach(i=>AI.players[i].chips+=pays[i]);
+  if(AI.dealer===0){ AI.consecutive=(AI.consecutive||0)+1; } else { AI.consecutive=0; }
   renderGame();showWin(0,y,pays,`點砲 (${AI.players[fromIdx].name})`);
 }
 
@@ -1557,8 +1593,25 @@ function doPass(fromIdx){
 
 function aiExhaust(){
   AI.gameOver=true;
-  toast('牌堆耗盡！流局，進入下一局');
-  setTimeout(()=>nextRound(),1800);
+  AI.consecutive=(AI.consecutive||0)+1; // 流局也連莊
+  // Show exhaust settlement modal (reuse win modal)
+  document.getElementById('wch').textContent='🌊';
+  document.getElementById('wt').textContent='流局！牌堆耗盡';
+  document.getElementById('wmth').textContent='本局無人胡牌，下一局繼續';
+  document.getElementById('wy').innerHTML='<div class="yr"><span class="yn">流局</span><span class="ys">0台</span></div>';
+  const pays = {}; AI.players.forEach((_,i)=>{ pays[i]=0; });
+  const pls = AI.players;
+  document.getElementById('wp').innerHTML = pls.map((pl,i) => {
+    return `<div class="pr">
+      <span class="pln">${pl.char?.e||'👤'} ${pl.name}</span>
+      <span>0</span>
+      <span style="font-size:11px;color:rgba(255,255,255,.4);margin-left:8px">累計:${pl.chips.toLocaleString()}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('wnext').textContent='➡ 下一局';
+  document.getElementById('wnext').style.display='';
+  document.getElementById('wwait').style.display='none';
+  document.getElementById('ov-win').classList.add('on');
 }
 
 // ══════════════════════════════════════
@@ -1600,6 +1653,9 @@ function A(type){
     const y=calcY(me,true);
     const pays=calcPays(0,true,null,y.totalAmt);
     Object.keys(pays).forEach(i=>AI.players[i].chips+=pays[i]);
+    // 連莊：玩家是莊家就連莊++，否則 reset
+    if(AI.dealer===0){ AI.consecutive=(AI.consecutive||0)+1; }
+    else { AI.consecutive=0; }
     showWin(0,y,pays,'自摸');
   }
 }
@@ -1648,15 +1704,23 @@ function showWin(wi,y,pays,meth){
   recordRound(wi,y,pays,meth);
   const p=MODE==='ai'?AI.players[wi]:GS?.players[wi];if(!p)return;
   document.getElementById('wch').textContent=p.char?.e||'🀄';
-  document.getElementById('wt').textContent=wi===C.mySeat?'🎉 你胡了！':`${p.name} 胡牌！`;
+  const isMeWinner = (wi===C.mySeat);
+  document.getElementById('wt').textContent = MODE==='ai'
+    ? (wi===0?'🎉 你胡了！':`${p.name} 胡牌！`)
+    : (isMeWinner?'🎉 你胡了！':`${p.name} 胡牌！`);
   document.getElementById('wmth').textContent=meth;
   const yakuArr=y.yakus||[];
   document.getElementById('wy').innerHTML=yakuArr.map(x=>`<div class="yr"><span class="yn">${x.name}</span><span class="ys">${x.tai}台</span></div>`).join('')+
     `<div class="ytot"><span>合計</span><span>${y.totalTai}台 = ${y.totalAmt}元</span></div>`;
-  const pls=MODE==='ai'?AI.players:GS?.players||[];
+  const pls=MODE==='ai'?AI.players:(GS?.players||[]);
   document.getElementById('wp').innerHTML=pls.map((pl,i)=>{
-    const dv=pays[i]||0,cls=dv>0?'pos':dv<0?'neg':'';
-    return`<div class="pr"><span class="pln">${pl.char?.e||''} ${pl.name}</span><span class="${cls}">${dv>0?'+':''}${dv.toLocaleString()}</span></div>`;
+    const dv=pays[i]||0, cls=dv>0?'pos':dv<0?'neg':'';
+    const chips = MODE==='ai' ? pl.chips : (pl.chips ?? 0);
+    return `<div class="pr">
+      <span class="pln">${pl.char?.e||'👤'} ${pl.name}${i===wi?' 🀄':''}</span>
+      <span class="${cls}" style="font-size:15px;font-weight:700">${dv>0?'+':''}${dv.toLocaleString()}</span>
+      <span style="font-size:11px;color:rgba(255,255,255,.4);margin-left:8px">累計:${chips.toLocaleString()}</span>
+    </div>`;
   }).join('');
   const host=MODE==='ai'||C.isHost;
   document.getElementById('wnext').style.display=host?'':'none';
@@ -1667,17 +1731,27 @@ function showWin(wi,y,pays,meth){
 function nextRound(){
   closeOv('ov-win');
   if(MODE==='ai'){
+    if(AI.gameOver) { AI.gameOver=false; } // reset exhaust flag
     AI.totalRound++;
     if(AI.totalRound>TOTAL_ROUNDS){
-      // One yi-jiang complete
       showFinalSettlement('一將結束！(16局打完)');
       return;
     }
     AI.round=(AI.totalRound-1)%4+1;
-    AI.dealer=(AI.dealer+1)%4;
-    aiInitRound();
+    // 莊家連莊時不輪換；否則輪下一家
+    if((AI.consecutive||0)===0){
+      AI.dealer=(AI.dealer+1)%4;
+    }
+    // Show wind draw for new yi-jiang (every 4 rounds)
+    if(AI.round===1 && AI.totalRound>1){
+      AI.consecutive=0; // 新一將重置
+      aiWindDraw();
+    } else {
+      aiInitRound();
+    }
   } else {
-    C.discPos=[];send2({type:'nextRound'});
+    C.discPos=[];
+    send2({type:'nextRound'});
   }
 }
 
@@ -1927,9 +2001,39 @@ function hMsg(msg){
     case 'flower':toast(msg.seat===C.mySeat?'🌸 補花！':`${GS?.players[msg.seat]?.name||''} 補花`);break;
     case 'hurry':toast(`⚡ ${msg.fromName} 催促 ${msg.targetName}！`);break;
     case 'win':
-      closeOv('ov-action');closeOv('ov-chi');
-      showWin(msg.seat,{yakus:msg.yakus,totalTai:msg.totalTai,totalAmt:msg.totalAmt},msg.pays,msg.method);break;
-    case 'exhaust':toast('牌堆耗盡！流局');break;
+      closeOv('ov-action'); closeOv('ov-chi');
+      // Update GS player chips from server data
+      if (msg.playerChips && GS?.players) {
+        msg.playerChips.forEach((c,i) => { if(GS.players[i]) GS.players[i].chips = c; });
+      }
+      document.getElementById('wnext').textContent = '➡ 繼續下一局';
+      showWin(msg.seat, {yakus:msg.yakus, totalTai:msg.totalTai, totalAmt:msg.totalAmt}, msg.pays, msg.method);
+      break;
+    case 'exhaust': {
+      closeOv('ov-action'); closeOv('ov-chi');
+      // Show exhaust settlement modal
+      const chips = msg.chips || [];
+      const pls = GS?.players || [];
+      const names = msg.playerNames || pls.map(p=>p.name);
+      const chars = msg.playerChars || pls.map(p=>p.char);
+      document.getElementById('wp').innerHTML = names.map((nm,i) => {
+        const ch = chips[i] ?? pls[i]?.chips ?? 0;
+        const cls = ch > 0 ? 'pos' : ch < 0 ? 'neg' : '';
+        const charE = chars[i]?.e || '👤';
+        return `<div class="pr"><span class="pln">${charE} ${nm}</span><span class="${cls}">${ch>0?'+':''}${ch.toLocaleString()}</span></div>`;
+      }).join('');
+      document.getElementById('wch').textContent = '🌊';
+      document.getElementById('wt').textContent = '流局！牌堆耗盡';
+      document.getElementById('wmth').textContent = '本局無人胡牌';
+      document.getElementById('wy').innerHTML = '<div class="yr"><span class="yn">流局</span><span class="ys">0台</span></div>';
+      const host = C.isHost;
+      document.getElementById('wnext').style.display = host ? '' : 'none';
+      document.getElementById('wnext').textContent = '➡ 下一局';
+      document.getElementById('wwait').style.display = host ? 'none' : 'block';
+      document.getElementById('ov-win').classList.add('on');
+      toast('牌堆耗盡！流局');
+      break;
+    }
     case 'playerLeft':toast(`玩家${msg.seat+1}離線`);break;
   }
 }

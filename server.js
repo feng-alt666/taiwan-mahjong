@@ -171,71 +171,108 @@ function findChiOptions(hand, tile) {
 }
 
 // ══════════════════════════════════════
-// YAKU CALCULATION
+// YAKU CALCULATION (完整台數)
 // ══════════════════════════════════════
-function calcYaku(player, isSelfDraw, base, tai) {
+function calcYaku(player, isSelfDraw, base, tai, opts = {}) {
   const yakus = [];
   const allTiles = [...player.hand, ...player.melds.flatMap(m => m.tiles)];
   const nonFlower = allTiles.filter(t => !isFlower(t));
 
-  // Flowers
+  // ── 花牌 ──
   const fc = player.flowers.length;
   if (fc > 0) yakus.push({ name: `花牌×${fc}`, tai: fc });
   if (fc === 8) yakus.push({ name: '全花', tai: 8 });
-  // 正花
   const windFlower = player.flowers.some(f => f.flower === player.wind + 4);
   const suitFlower = player.flowers.some(f => f.flower === player.wind);
   if (windFlower) yakus.push({ name: '正花(季)', tai: 1 });
   if (suitFlower) yakus.push({ name: '正花(品)', tai: 1 });
 
-  // Suit analysis
+  // ── 花色分析 ──
   const suits = [...new Set(nonFlower.filter(t => t.honor == null).map(t => t.suit))];
   const hasHonor = nonFlower.some(t => t.honor != null);
   const isOneSuit = suits.length === 1 && !hasHonor;
   const isMixed = suits.length === 1 && hasHonor;
   const isAllHonor = nonFlower.every(t => t.honor != null);
 
-  if (isOneSuit) yakus.push({ name: '清一色', tai: 8 });
-  else if (isAllHonor) yakus.push({ name: '字一色', tai: 16 });
-  else if (isMixed) yakus.push({ name: '混一色', tai: 4 });
-
-  // All triplets
+  // ── 七對子 ──
   const counts = {};
   nonFlower.forEach(t => { const k = tileKey(t); counts[k] = (counts[k] || 0) + 1; });
   const vals = Object.values(counts);
-  const pairs = vals.filter(v => v === 2).length;
-  const trips = vals.filter(v => v >= 3).length;
-  if (pairs === 1 && trips === Object.keys(counts).length - 1)
-    yakus.push({ name: '對對胡', tai: 4 });
+  const isSevenPairs = vals.length === 7 && vals.every(v => v === 2);
+  if (isSevenPairs) {
+    yakus.push({ name: '七對子', tai: 7 });
+  } else {
+    // ── 清一色 / 字一色 / 混一色 ──
+    if (isOneSuit) yakus.push({ name: '清一色', tai: 8 });
+    else if (isAllHonor) yakus.push({ name: '字一色', tai: 16 });
+    else if (isMixed) yakus.push({ name: '混一色', tai: 4 });
 
-  // Sequences / ping hu
-  const hasMeld = player.melds.length > 0;
-  const allChi = player.melds.every(m => m.type === 'chi');
-  if (hasMeld && allChi && !isOneSuit && !isMixed && !isAllHonor)
-    yakus.push({ name: '平胡', tai: 1 });
+    // ── 對對胡 ──
+    const pairs = vals.filter(v => v === 2).length;
+    const trips = vals.filter(v => v >= 3).length;
+    const isAllTrips = pairs === 1 && trips === Object.keys(counts).length - 1;
+    if (isAllTrips) yakus.push({ name: '對對胡', tai: 4 });
 
-  // Men qing
-  if (player.melds.length === 0 && !isSelfDraw)
+    // ── 四暗刻 ──
+    const hiddenKongs = player.melds.filter(m => m.type === 'kong' && m.concealed).length;
+    const handTrips = vals.filter(v => v >= 3).length;
+    if (hiddenKongs + handTrips >= 4 && player.melds.filter(m=>m.type==='pong').length === 0)
+      yakus.push({ name: '四暗刻', tai: 5 });
+
+    // ── 大三元 ──
+    const dragonMelds = [4,5,6].filter(h =>
+      player.melds.some(m => (m.type==='pong'||m.type==='kong') && m.tiles[0].honor===h)
+      || vals[Object.keys(counts).indexOf(tileKey({honor:h}))] >= 3
+    );
+    if (dragonMelds.length === 3) yakus.push({ name: '大三元', tai: 16 });
+    else if (dragonMelds.length === 2 && nonFlower.filter(t=>t.honor!=null&&[4,5,6].includes(t.honor)).length===2)
+      yakus.push({ name: '小三元', tai: 4 });
+
+    // ── 平胡 ──
+    const hasMeld = player.melds.length > 0;
+    const allChi = player.melds.every(m => m.type === 'chi');
+    if (hasMeld && allChi && !isOneSuit && !isMixed && !isAllHonor)
+      yakus.push({ name: '平胡', tai: 1 });
+  }
+
+  // ── 門清 ──
+  if (player.melds.filter(m=>m.type!=='kong'||!m.concealed).length === 0 && !isSelfDraw)
     yakus.push({ name: '門清', tai: 1 });
 
-  // Self draw
+  // ── 自摸 ──
   if (isSelfDraw) yakus.push({ name: '自摸', tai: 1 });
 
-  // Dealer
-  if (player.wind === 0) yakus.push({ name: '莊家', tai: 1 });
+  // ── 海底撈月 ──
+  if (isSelfDraw && opts.isLastTile) yakus.push({ name: '海底撈月', tai: 1 });
 
-  // Wind triplet
-  const wm = player.melds.find(m => (m.type === 'pong' || m.type === 'kong') && m.tiles[0].honor === player.wind);
+  // ── 槓上開花 ──
+  if (isSelfDraw && opts.isKongDraw) yakus.push({ name: '槓上開花', tai: 1 });
+
+  // ── 搶槓胡 ──
+  if (!isSelfDraw && opts.isRobKong) yakus.push({ name: '搶槓胡', tai: 1 });
+
+  // ── 莊家 + 連莊 ──
+  if (player.wind === 0) {
+    const lian = opts.consecutive || 0;
+    if (lian > 0) {
+      yakus.push({ name: `莊家連莊${lian}`, tai: 1 + lian * 2 });
+    } else {
+      yakus.push({ name: '莊家', tai: 1 });
+    }
+  }
+
+  // ── 風刻 ──
+  const wm = player.melds.find(m => (m.type==='pong'||m.type==='kong') && m.tiles[0].honor===player.wind);
   if (wm) yakus.push({ name: `${WINDS[player.wind]}風刻`, tai: 1 });
 
-  // Dragons
-  [[4, '中'], [5, '發'], [6, '白']].forEach(([h, n]) => {
-    const m = player.melds.find(m => (m.type === 'pong' || m.type === 'kong') && m.tiles[0].honor === h);
+  // ── 三元刻 (中/發/白) ──
+  [[4,'中'],[5,'發'],[6,'白']].forEach(([h,n]) => {
+    const m = player.melds.find(m => (m.type==='pong'||m.type==='kong') && m.tiles[0].honor===h);
     if (m) yakus.push({ name: `${n}刻`, tai: 1 });
   });
 
-  // Kong bonus
-  const kongCount = player.melds.filter(m => m.type === 'kong').length;
+  // ── 槓 ──
+  const kongCount = player.melds.filter(m => m.type==='kong').length;
   if (kongCount > 0) yakus.push({ name: `槓×${kongCount}`, tai: kongCount });
 
   const totalTai = Math.max(yakus.reduce((s, y) => s + y.tai, 0), 1);
@@ -273,6 +310,7 @@ class Room {
     this.started = false;
     this.round = 1;
     this.dealer = 0;
+    this.consecutive = 0; // 莊家連莊次數
 
     // Game state
     this.deck = [];
@@ -677,10 +715,18 @@ class Room {
       if (this.discards.length) this.discards.pop();
     }
 
-    const { yakus, totalTai, totalAmt } = calcYaku(p, isSelfDraw, this.base, this.tai);
+    const isLastTile = this.deck.length === 0;
+    const opts = { consecutive: this.consecutive, isLastTile };
+    const { yakus, totalTai, totalAmt } = calcYaku(p, isSelfDraw, this.base, this.tai, opts);
     const pays = calcPays(seatIdx, isSelfDraw, fromSeat, totalAmt, this.players);
 
     Object.keys(pays).forEach(i => { this.players[i].chips += pays[i]; });
+    // 連莊：莊家胡牌則連莊 ++，否則 reset
+    if (seatIdx === this.dealer) {
+      this.consecutive++;
+    } else {
+      this.consecutive = 0;
+    }
 
     const method = isSelfDraw ? '自摸' : `點砲 (${this.players[fromSeat]?.name || ''})`;
     this.broadcastAll({
@@ -701,12 +747,15 @@ class Room {
 
   exhaust() {
     this.phase = 'ended';
-    this.broadcastAll({ type: 'exhaust' });
-    setTimeout(() => {
-      this.round++;
-      this.dealer = (this.dealer + 1) % 4;
-      this.initRound();
-    }, 3000);
+    this.consecutive++; // 流局也連莊
+    // Broadcast exhaust with chip info so client can show settlement
+    this.broadcastAll({
+      type: 'exhaust',
+      chips: this.players.map(p => p.chips),
+      playerNames: this.players.map(p => p.name),
+      playerChars: this.players.map(p => p.char),
+    });
+    // Do NOT auto-advance; wait for host to click nextRound
   }
 
   aiChooseDiscard(hand) {
@@ -875,12 +924,16 @@ wss.on('connection', (ws) => {
       case 'nextRound': {
         if (!clientRoom || clientSeat !== 0) return;
         clientRoom.round++;
-        // 每將第一局才抽牌；其他局直接骰骰子
-        if (clientRoom.round % 4 === 1) {
+        // 每4局（新的一將）才抽東南西北；其他局莊家輪換後骰骰子
+        if ((clientRoom.round - 1) % 4 === 0 && clientRoom.round > 1) {
+          // New yi-jiang: do wind draw again
           clientRoom.broadcastAll({ type: 'gameStart' });
           setTimeout(() => clientRoom.startWindDraw(), 300);
         } else {
-          clientRoom.dealer = (clientRoom.dealer + 1) % 4;
+          // Same yi-jiang: dealer rotates, just roll dice
+          clientRoom.dealer = (clientRoom.windDealerSeat !== undefined)
+            ? (clientRoom.windDealerSeat + clientRoom.round - 1) % 4
+            : (clientRoom.dealer + 1) % 4;
           clientRoom.rollDiceAndStart();
         }
         break;
