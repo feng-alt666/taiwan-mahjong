@@ -194,6 +194,15 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--gd);color:var(--lt);
 @keyframes passpl{0%,100%{box-shadow:0 0 0 0 rgba(255,140,0,.4);}50%{box-shadow:0 0 0 6px rgba(255,140,0,0);}}
 .abtn.settle{background:rgba(255,100,100,.08);border-color:#ff6464;color:#ff6464;}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(240,192,64,.5);}50%{box-shadow:0 0 0 8px rgba(240,192,64,0);}}
+@keyframes confettiFall{
+  0%{transform:translateY(0) rotate(0deg);opacity:1;}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0;}
+}
+@keyframes winFlash{
+  0%{transform:scale(0.5);opacity:0;}
+  60%{transform:scale(1.2);opacity:1;}
+  100%{transform:scale(1);opacity:0;}
+}
 
 /* ── OVERLAYS ── */
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:100;align-items:center;justify-content:center;padding:20px;}
@@ -1567,9 +1576,17 @@ function doKongFromDiscard(tile){
   me.hand=me.hand.filter(t=>{if(rm<3&&tk(t)===tk(tile)){rm++;return false;}return true;});
   me.melds.push({type:'kong',tiles:[tile,tile,tile,tile]});
   AI.discards.pop();
-  if(AI.deck.length){const r=AI.deck.pop();if(isF(r)){me.flowers.push(r);if(AI.deck.length)me.hand.push(AI.deck.pop());}else me.hand.push(r);}
+  // 槓後補花：一直補到非花為止
+  let r=AI.deck.pop();
+  while(r&&isF(r)){
+    me.flowers.push(r);
+    toast('🌸 補花！'+FL[r.flower]);
+    r=AI.deck.length?AI.deck.pop():null;
+  }
+  if(r)me.hand.push(r);
   AI.phase='discard';AI.currentTurn=0;C.selIdx=-1;
   toast('槓！');renderGame();updBtns();
+  if(canWin(me.hand,me.melds)) toast('🀄 槓上開花！可以自摸！');
 }
 
 function showChiPicker(co){
@@ -1653,7 +1670,9 @@ function A(type){
       toast('🌸 補花！'+FL[dr.flower]);
     } else me.hand.push(dr);
     AI.phase='discard';renderGame();updBtns();
-    if(canWin(me.hand,me.melds))toast('可以自摸！');
+    if(canWin(me.hand,me.melds)){
+      toast('🀄 可以自摸！按「胡！」');
+    }
   }
   else if(type==='disc'){
     if(C.selIdx===-1){toast('請先點選要打出的牌');return;}
@@ -1668,11 +1687,22 @@ function A(type){
     const kk=Object.keys(cv).find(k=>cv[k]>=4);if(!kk)return;
     const tiles=me.hand.filter(t=>tk(t)===kk).slice(0,4);
     me.hand=me.hand.filter(t=>tk(t)!==kk);
-    me.melds.push({type:'kong',tiles});
-    if(AI.deck.length){const r=AI.deck.pop();if(isF(r)){me.flowers.push(r);if(AI.deck.length)me.hand.push(AI.deck.pop());}else me.hand.push(r);}
+    me.melds.push({type:'kong',tiles,concealed:true});
+    // 槓後補花：一直補到非花為止
+    let r=AI.deck.pop();
+    while(r&&isF(r)){
+      me.flowers.push(r);
+      toast('🌸 補花！'+FL[r.flower]);
+      r=AI.deck.length?AI.deck.pop():null;
+    }
+    if(r)me.hand.push(r);
     AI.phase='discard';toast('暗槓！');renderGame();updBtns();
+    if(canWin(me.hand,me.melds)){
+      toast('🀄 槓上開花！可以自摸！');
+    }
   }
   else if(type==='win'){
+    if(!canWin(me.hand,me.melds)){toast('目前不能胡牌');return;}
     AI.gameOver=true;
     const y=calcY(me,true);
     const pays=calcPays(0,true,null,y.totalAmt);
@@ -1727,11 +1757,16 @@ function recordRound(wi,y,pays,meth){
 function showWin(wi,y,pays,meth){
   recordRound(wi,y,pays,meth);
   const p=MODE==='ai'?AI.players[wi]:GS?.players[wi];if(!p)return;
+  const isMeWinner = MODE==='ai' ? wi===0 : wi===C.mySeat;
+  const isSelfDraw = meth==='自摸';
+
+  // 🎊 慶祝特效（自己贏時）
+  if(isMeWinner){ spawnConfetti(); }
+
   document.getElementById('wch').textContent=p.char?.e||'🀄';
-  const isMeWinner = (wi===C.mySeat);
-  document.getElementById('wt').textContent = MODE==='ai'
-    ? (wi===0?'🎉 你胡了！':`${p.name} 胡牌！`)
-    : (isMeWinner?'🎉 你胡了！':`${p.name} 胡牌！`);
+  document.getElementById('wt').textContent = isMeWinner
+    ? (isSelfDraw?'🀄 自摸！恭喜！':'🎉 胡牌！恭喜！')
+    : `${p.name} ${isSelfDraw?'自摸':'胡牌'}！`;
   document.getElementById('wmth').textContent=meth;
   const yakuArr=y.yakus||[];
   document.getElementById('wy').innerHTML=yakuArr.map(x=>`<div class="yr"><span class="yn">${x.name}</span><span class="ys">${x.tai}台</span></div>`).join('')+
@@ -1747,9 +1782,29 @@ function showWin(wi,y,pays,meth){
     </div>`;
   }).join('');
   const host=MODE==='ai'||C.isHost;
+  document.getElementById('wnext').textContent='➡ 繼續下一局';
   document.getElementById('wnext').style.display=host?'':'none';
   document.getElementById('wwait').style.display=host?'none':'block';
   document.getElementById('ov-win').classList.add('on');
+}
+
+// 🎊 撒花特效
+function spawnConfetti(){
+  const colors=['#f0c040','#ff6060','#40f08c','#40b4f0','#c864f0','#fff','#ff9900'];
+  for(let i=0;i<55;i++){
+    const el=document.createElement('div');
+    const size=Math.random()*10+4;
+    const dur=1.5+Math.random()*2;
+    el.style.cssText=`position:fixed;width:${size}px;height:${size}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      left:${Math.random()*100}vw;top:-20px;
+      z-index:998;pointer-events:none;
+      animation:confettiFall ${dur}s ease-in forwards;
+      animation-delay:${Math.random()*0.6}s;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), (dur+0.7)*1000);
+  }
 }
 
 function nextRound(){
